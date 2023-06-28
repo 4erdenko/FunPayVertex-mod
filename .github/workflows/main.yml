@@ -38,7 +38,7 @@ jobs:
             send \"$TOKEN\r\"
             expect \"└───> \"
             send \"$SECRET_KEY\r\"
-            interact" && python main.py
+            interact"
 
 
       - name: Wait for bot to initialize
