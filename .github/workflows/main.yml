@@ -10,13 +10,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Build Docker image
         run: docker build -t funpay_bot_image .
 
       - name: Run Docker container
-        run: docker run --name funpay_bot funpay_bot_image python3 main.py
+        run: docker run --name funpay_bot funpay_bot_image
 
       - name: Wait for bot to initialize
         run: sleep 10
