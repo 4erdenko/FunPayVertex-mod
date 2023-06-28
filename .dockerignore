@@ -1,1 +1,9 @@
 venv
+configs
+.gitignore
+README.md
+.idea
+logs
+storage
+.github
+Start.bat
