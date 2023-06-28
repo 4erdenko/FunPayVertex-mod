@@ -5,12 +5,7 @@ on:
     branches:
       - main
 
-env:
-  GOLDEN_KEY: ${{ secrets.GOLDEN_KEY }}
-  USER_AGENT: ${{ secrets.USER_AGENT }}
-  ENABLED: ${{ secrets.ENABLED }}
-  TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-  SECRET_KEY: ${{ secrets.SECRET_KEY }}
+
 
 jobs:
   build-test:
@@ -24,7 +19,8 @@ jobs:
         run: docker build -t funpay_bot_image .
 
       - name: Run Docker container
-        run: docker run --name funpay_bot funpay_bot_image
+        run: docker run -e GOLDEN_KEY -e USER_AGENT -e ENABLED -e TOKEN -e SECRET_KEY --name funpay_bot funpay_bot_image
+
 
       - name: Wait for bot to initialize
         run: sleep 10
