@@ -82,21 +82,17 @@ jobs:
           username: ${{ secrets.USER }}
           key: ${{ secrets.SSH_KEY }}
           passphrase: ${{ secrets.SSH_PASSPHRASE }}
-          script: mkdir -p /home/ubuntu/telegram_bots/funpay_bot
+          script: mkdir -p ${{ secrets.PROJECT_PATH_ON_HOST }}
 
-      - name: Create compose file
-        uses: appleboy/ssh-action@master
+      - name: Copy docker-compose file
+        uses: appleboy/scp-action@v0.1.4
         with:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USER }}
           key: ${{ secrets.SSH_KEY }}
           passphrase: ${{ secrets.SSH_PASSPHRASE }}
-          script: |
-            cd /home/ubuntu/telegram_bots/funpay_bot
-            rm -rf docker-compose.yml
-            cat <<EOF > docker-compose.yml
-            ${{ secrets.DOCKER_COMPOSE_YML }}
-            EOF
+          source: "docker-compose.yml"
+          target: "${{ secrets.PROJECT_PATH_ON_HOST }}"
 
       - name: Create configs folder on host
         uses: appleboy/ssh-action@master
@@ -106,8 +102,8 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           passphrase: ${{ secrets.SSH_PASSPHRASE }}
           script: |
-            cd /home/ubuntu/telegram_bots/funpay_bot
-            mkdir -p /home/ubuntu/telegram_bots/funpay_bot/configs
+            cd ${{ secrets.PROJECT_PATH_ON_HOST }}
+            mkdir -p ${{ secrets.PROJECT_PATH_ON_HOST }}/configs
             cd configs
             cat <<EOF > _main.cfg
             ${{ secrets._MAIN_CFG }}
@@ -120,6 +116,6 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           passphrase: ${{ secrets.SSH_PASSPHRASE }}
           script: |
-            cd /home/ubuntu/telegram_bots/funpay_bot
+            cd ${{ secrets.PROJECT_PATH_ON_HOST }}
             sudo docker compose pull
             sudo docker compose up -d

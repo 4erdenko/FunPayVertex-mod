@@ -1,8 +1,10 @@
 from __future__ import annotations
+
 import time
+
+from .. import types
 from ..common import utils
 from ..common.enums import *
-from .. import types
 
 
 class BaseEvent:
@@ -18,7 +20,13 @@ class BaseEvent:
     :param event_time: время события (лучше не указывать, будет генерироваться автоматически).
     :type event_time: :obj:`int` or :obj:`float` or :obj:`None`, опционально.
     """
-    def __init__(self, runner_tag: str, event_type: EventTypes, event_time: int | float | None = None):
+
+    def __init__(
+        self,
+        runner_tag: str,
+        event_type: EventTypes,
+        event_time: int | float | None = None,
+    ):
         self.runner_tag = runner_tag
         self.type = event_type
         self.time = event_time if event_type is not None else time.time()
@@ -34,8 +42,11 @@ class InitialChatEvent(BaseEvent):
     :param chat_obj: объект обнаруженного чата.
     :type chat_obj: :class:`FunPayAPI.types.ChatShortcut`
     """
+
     def __init__(self, runner_tag: str, chat_obj: types.ChatShortcut):
-        super(InitialChatEvent, self).__init__(runner_tag, EventTypes.INITIAL_CHAT)
+        super(InitialChatEvent, self).__init__(
+            runner_tag, EventTypes.INITIAL_CHAT
+        )
         self.chat: types.ChatShortcut = chat_obj
         """Объект обнаруженного чата."""
 
@@ -47,8 +58,11 @@ class ChatsListChangedEvent(BaseEvent):
     :param runner_tag: тег Runner'а.
     :type runner_tag: :obj:`str`
     """
+
     def __init__(self, runner_tag: str):
-        super(ChatsListChangedEvent, self).__init__(runner_tag, EventTypes.CHATS_LIST_CHANGED)
+        super(ChatsListChangedEvent, self).__init__(
+            runner_tag, EventTypes.CHATS_LIST_CHANGED
+        )
         # todo: добавить список всех чатов.
 
 
@@ -62,8 +76,11 @@ class LastChatMessageChangedEvent(BaseEvent):
     :param chat_obj: объект чата, в котором изменилось полседнее сообщение.
     :type chat_obj: :class:`FunPayAPI.types.ChatShortcut`
     """
+
     def __init__(self, runner_tag: str, chat_obj: types.ChatShortcut):
-        super(LastChatMessageChangedEvent, self).__init__(runner_tag, EventTypes.LAST_CHAT_MESSAGE_CHANGED)
+        super(LastChatMessageChangedEvent, self).__init__(
+            runner_tag, EventTypes.LAST_CHAT_MESSAGE_CHANGED
+        )
         self.chat: types.ChatShortcut = chat_obj
         """Объект чата, в котором изменилось полседнее сообщение."""
 
@@ -81,8 +98,16 @@ class NewMessageEvent(BaseEvent):
     :param stack: объект стэка событий новых собщений.
     :type stack: :class:`FunPayAPI.updater.events.MessageEventsStack` or :obj:`None`, опционально
     """
-    def __init__(self, runner_tag: str, message_obj: types.Message, stack: MessageEventsStack | None = None):
-        super(NewMessageEvent, self).__init__(runner_tag, EventTypes.NEW_MESSAGE)
+
+    def __init__(
+        self,
+        runner_tag: str,
+        message_obj: types.Message,
+        stack: MessageEventsStack | None = None,
+    ):
+        super(NewMessageEvent, self).__init__(
+            runner_tag, EventTypes.NEW_MESSAGE
+        )
         self.message: types.Message = message_obj
         """Объект нового сообщения."""
         self.stack: MessageEventsStack = stack
@@ -94,6 +119,7 @@ class MessageEventsStack:
     Данный класс представляет стэк событий новых сообщений.
     Нужен для того, чтобы сразу предоставить доступ ко всем событиям новых сообщений от одного пользователя и одного запроса Runner'а.
     """
+
     def __init__(self):
         self.__id = utils.random_tag()
         self.__stack = []
@@ -136,8 +162,11 @@ class InitialOrderEvent(BaseEvent):
     :param order_obj: объект обнаруженного заказа.
     :type order_obj: :class:`FunPayAPI.types.OrderShortcut`
     """
+
     def __init__(self, runner_tag: str, order_obj: types.OrderShortcut):
-        super(InitialOrderEvent, self).__init__(runner_tag, EventTypes.INITIAL_ORDER)
+        super(InitialOrderEvent, self).__init__(
+            runner_tag, EventTypes.INITIAL_ORDER
+        )
         self.order: types.OrderShortcut = order_obj
         """Объект обнаруженного заказа."""
 
@@ -155,8 +184,11 @@ class OrdersListChangedEvent(BaseEvent):
     :param sales: кол-во незавершенных продаж.
     :type sales: :obj:`int`
     """
+
     def __init__(self, runner_tag: str, purchases: int, sales: int):
-        super(OrdersListChangedEvent, self).__init__(runner_tag, EventTypes.ORDERS_LIST_CHANGED)
+        super(OrdersListChangedEvent, self).__init__(
+            runner_tag, EventTypes.ORDERS_LIST_CHANGED
+        )
         self.purchases: int = purchases
         """Кол-во незавершенных покупок."""
         self.sales: int = sales
@@ -173,6 +205,7 @@ class NewOrderEvent(BaseEvent):
     :param order_obj: объект нового заказа.
     :type order_obj: :class:`FunPayAPI.types.OrderShortcut`
     """
+
     def __init__(self, runner_tag: str, order_obj: types.OrderShortcut):
         super(NewOrderEvent, self).__init__(runner_tag, EventTypes.NEW_ORDER)
         self.order: types.OrderShortcut = order_obj
@@ -189,7 +222,10 @@ class OrderStatusChangedEvent(BaseEvent):
     :param order_obj: объект измененного заказа.
     :type order_obj: :class:`FunPayAPI.types.OrderShortcut`
     """
+
     def __init__(self, runner_tag: str, order_obj: types.OrderShortcut):
-        super(OrderStatusChangedEvent, self).__init__(runner_tag, EventTypes.ORDER_STATUS_CHANGED)
+        super(OrderStatusChangedEvent, self).__init__(
+            runner_tag, EventTypes.ORDER_STATUS_CHANGED
+        )
         self.order: types.OrderShortcut = order_obj
         """Объект измененного заказа."""

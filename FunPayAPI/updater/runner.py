@@ -2,18 +2,19 @@ from __future__ import annotations
 
 import re
 from typing import TYPE_CHECKING, Generator
+
 if TYPE_CHECKING:
     from ..account import Account
 
 import json
 import logging
+
 from bs4 import BeautifulSoup
 
 from ..common import exceptions
 from .events import *
 
-
-logger = logging.getLogger("FunPayAPI.runner")
+logger = logging.getLogger('FunPayAPI.runner')
 
 
 class Runner:
@@ -40,17 +41,26 @@ class Runner:
         :class:`FunPayAPI.updater.events.OrdersListChangedEvent`.
     :type disabled_order_requests: :obj:`bool`, опционально
     """
-    def __init__(self, account: Account, disable_message_requests: bool = False,
-                 disabled_order_requests: bool = False):
+
+    def __init__(
+        self,
+        account: Account,
+        disable_message_requests: bool = False,
+        disabled_order_requests: bool = False,
+    ):
         # todo добавить события и исключение событий о новых покупках (не продажах!)
         if not account.is_initiated:
             raise exceptions.AccountNotInitiatedError()
         if account.runner:
-            raise Exception("К аккаунту уже привязан Runner!")  # todo
+            raise Exception('К аккаунту уже привязан Runner!')  # todo
 
-        self.make_msg_requests: bool = False if disable_message_requests else True
+        self.make_msg_requests: bool = (
+            False if disable_message_requests else True
+        )
         """Делать ли доп. запросы для получения всех новых сообщений изменившихся чатов?"""
-        self.make_order_requests: bool = False if disabled_order_requests else True
+        self.make_order_requests: bool = (
+            False if disabled_order_requests else True
+        )
         """Делать ли доп запросы для получения все новых / изменившихся заказов?"""
 
         self.__first_request = True
@@ -76,7 +86,7 @@ class Runner:
         """Экземпляр аккаунта, к которому привязан Runner."""
         self.account.runner = self
 
-        self.__msg_time_re = re.compile(r"\d{2}:\d{2}")
+        self.__msg_time_re = re.compile(r'\d{2}:\d{2}')
 
     def get_updates(self) -> dict:
         """
@@ -86,36 +96,47 @@ class Runner:
         :rtype: :obj:`dict`
         """
         orders = {
-            "type": "orders_counters",
-            "id": self.account.id,
-            "tag": self.__last_order_event_tag,
-            "data": False
+            'type': 'orders_counters',
+            'id': self.account.id,
+            'tag': self.__last_order_event_tag,
+            'data': False,
         }
         chats = {
-            "type": "chat_bookmarks",
-            "id": self.account.id,
-            "tag": self.__last_msg_event_tag,
-            "data": False
+            'type': 'chat_bookmarks',
+            'id': self.account.id,
+            'tag': self.__last_msg_event_tag,
+            'data': False,
         }
         payload = {
-            "objects": json.dumps([orders, chats]),
-            "request": False,
-            "csrf_token": self.account.csrf_token
+            'objects': json.dumps([orders, chats]),
+            'request': False,
+            'csrf_token': self.account.csrf_token,
         }
         headers = {
-            "accept": "*/*",
-            "content-type": "application/x-www-form-urlencoded; charset=UTF-8",
-            "x-requested-with": "XMLHttpRequest"
+            'accept': '*/*',
+            'content-type': 'application/x-www-form-urlencoded; charset=UTF-8',
+            'x-requested-with': 'XMLHttpRequest',
         }
 
-        response = self.account.method("post", "runner/", headers, payload, raise_not_200=True)
+        response = self.account.method(
+            'post', 'runner/', headers, payload, raise_not_200=True
+        )
         json_response = response.json()
-        logger.debug(f"Получены данные о событиях: {json_response}")
+        logger.debug(f'Получены данные о событиях: {json_response}')
         return json_response
 
-    def parse_updates(self, updates: dict) -> list[InitialChatEvent | ChatsListChangedEvent |
-                                                   LastChatMessageChangedEvent | NewMessageEvent | InitialOrderEvent |
-                                                   OrdersListChangedEvent | NewOrderEvent | OrderStatusChangedEvent]:
+    def parse_updates(
+        self, updates: dict
+    ) -> list[
+        InitialChatEvent
+        | ChatsListChangedEvent
+        | LastChatMessageChangedEvent
+        | NewMessageEvent
+        | InitialOrderEvent
+        | OrdersListChangedEvent
+        | NewOrderEvent
+        | OrderStatusChangedEvent
+    ]:
         """
         Парсит ответ FunPay и создает события.
 
@@ -132,18 +153,24 @@ class Runner:
             :class:`FunPayAPI.updater.events.OrderStatusChangedEvent`
         """
         events = []
-        for obj in updates["objects"]:
-            if obj.get("type") == "chat_bookmarks":
+        for obj in updates['objects']:
+            if obj.get('type') == 'chat_bookmarks':
                 events.extend(self.parse_chat_updates(obj))
-            elif obj.get("type") == "orders_counters":
+            elif obj.get('type') == 'orders_counters':
                 events.extend(self.parse_order_updates(obj))
 
         if self.__first_request:
             self.__first_request = False
         return events
 
-    def parse_chat_updates(self, obj) -> list[InitialChatEvent | ChatsListChangedEvent | LastChatMessageChangedEvent |
-                                              NewMessageEvent]:
+    def parse_chat_updates(
+        self, obj
+    ) -> list[
+        InitialChatEvent
+        | ChatsListChangedEvent
+        | LastChatMessageChangedEvent
+        | NewMessageEvent
+    ]:
         """
         Парсит события, связанные с чатами.
 
@@ -158,45 +185,65 @@ class Runner:
             :class:`FunPayAPI.updater.events.NewMessageEvent`
         """
         events, lcmc_events = [], []
-        self.__last_msg_event_tag = obj.get("tag")
-        parser = BeautifulSoup(obj["data"]["html"], "html.parser")
-        chats = parser.find_all("a", {"class": "contact-item"})
+        self.__last_msg_event_tag = obj.get('tag')
+        parser = BeautifulSoup(obj['data']['html'], 'html.parser')
+        chats = parser.find_all('a', {'class': 'contact-item'})
 
         # Получаем все изменившиеся чаты
         for chat in chats:
-            chat_id = int(chat["data-id"])
+            chat_id = int(chat['data-id'])
             # Если чат удален админами - скип.
-            if not (last_msg_text := chat.find("div", {"class": "contact-item-message"})):
+            if not (
+                last_msg_text := chat.find(
+                    'div', {'class': 'contact-item-message'}
+                )
+            ):
                 continue
 
             last_msg_text = last_msg_text.text
             if last_msg_text.startswith(self.account.bot_character):
                 last_msg_text = last_msg_text[1:]
-            last_msg_time = chat.find("div", {"class": "contact-item-time"}).text
+            last_msg_time = chat.find(
+                'div', {'class': 'contact-item-time'}
+            ).text
 
             # Если текст последнего сообщения совпадает с сохраненным
-            if chat_id in self.last_messages and self.last_messages[chat_id][0] == last_msg_text:
+            if (
+                chat_id in self.last_messages
+                and self.last_messages[chat_id][0] == last_msg_text
+            ):
                 # Если есть сохраненное время сообщения для данного чата
                 if self.last_messages[chat_id][1]:
                     # Если время ласт сообщения не имеет формат ЧЧ:ММ или совпадает с сохраненным - скип чата
-                    if not self.__msg_time_re.fullmatch(last_msg_time) or self.last_messages[chat_id][1] == last_msg_time:
+                    if (
+                        not self.__msg_time_re.fullmatch(last_msg_time)
+                        or self.last_messages[chat_id][1] == last_msg_time
+                    ):
                         continue
                 # Если нет сохраненного времени сообщения для данного чата - скип чата
                 else:
                     continue
 
-            unread = True if "unread" in chat.get("class") else False
-            chat_with = chat.find("div", {"class": "media-user-name"}).text
-            chat_obj = types.ChatShortcut(chat_id, chat_with, last_msg_text, unread, str(chat))
+            unread = True if 'unread' in chat.get('class') else False
+            chat_with = chat.find('div', {'class': 'media-user-name'}).text
+            chat_obj = types.ChatShortcut(
+                chat_id, chat_with, last_msg_text, unread, str(chat)
+            )
             self.account.add_chats([chat_obj])
             self.last_messages[chat_id] = [last_msg_text, last_msg_time]
 
             if self.__first_request:
-                events.append(InitialChatEvent(self.__last_msg_event_tag, chat_obj))
+                events.append(
+                    InitialChatEvent(self.__last_msg_event_tag, chat_obj)
+                )
                 self.init_messages[chat_id] = last_msg_text
                 continue
             else:
-                lcmc_events.append(LastChatMessageChangedEvent(self.__last_msg_event_tag, chat_obj))
+                lcmc_events.append(
+                    LastChatMessageChangedEvent(
+                        self.__last_msg_event_tag, chat_obj
+                    )
+                )
 
         # Если есть события изменения чатов, значит это не первый запрос и ChatsListChangedEvent будет первым событием
         if lcmc_events:
@@ -218,7 +265,9 @@ class Runner:
                     events.extend(new_msg_events[i.chat.id])
         return events
 
-    def generate_new_message_events(self, chats_data: dict[int, str]) -> dict[int, list[NewMessageEvent]]:
+    def generate_new_message_events(
+        self, chats_data: dict[int, str]
+    ) -> dict[int, list[NewMessageEvent]]:
         """
         Получает историю переданных чатов и генерирует события новых сообщений.
 
@@ -238,11 +287,15 @@ class Runner:
             except exceptions.RequestFailedError as e:
                 logger.error(e)
             except:
-                logger.error(f"Не удалось получить истории чатов {list(chats_data.keys())}.")
-                logger.debug("TRACEBACK", exc_info=True)
+                logger.error(
+                    f'Не удалось получить истории чатов {list(chats_data.keys())}.'
+                )
+                logger.debug('TRACEBACK', exc_info=True)
             time.sleep(1)
         else:
-            logger.error(f"Не удалось получить истории чатов {list(chats_data.keys())}: превышено кол-во попыток.")
+            logger.error(
+                f'Не удалось получить истории чатов {list(chats_data.keys())}: превышено кол-во попыток.'
+            )
             return {}
 
         result = {}
@@ -254,7 +307,9 @@ class Runner:
 
             # Удаляем все сообщения, у которых ID меньше сохраненного последнего сообщения
             if self.last_messages_ids.get(cid):
-                messages = [i for i in messages if i.id > self.last_messages_ids[cid]]
+                messages = [
+                    i for i in messages if i.id > self.last_messages_ids[cid]
+                ]
             if not messages:
                 continue
 
@@ -275,7 +330,7 @@ class Runner:
                     temp = []
                     for i in reversed(messages):
                         if i.image_link:
-                            if init_msg_text == "Изображение":
+                            if init_msg_text == 'Изображение':
                                 if not temp:
                                     temp.append(i)
                                 break
@@ -288,8 +343,14 @@ class Runner:
                 else:
                     messages = messages[-1:]
 
-            self.last_messages_ids[cid] = messages[-1].id  # Перезаписываем ID последнего сообщение
-            self.by_bot_ids[cid] = [i for i in self.by_bot_ids[cid] if i > self.last_messages_ids[cid]]  # чистим память
+            self.last_messages_ids[cid] = messages[
+                -1
+            ].id  # Перезаписываем ID последнего сообщение
+            self.by_bot_ids[cid] = [
+                i
+                for i in self.by_bot_ids[cid]
+                if i > self.last_messages_ids[cid]
+            ]  # чистим память
 
             for msg in messages:
                 event = NewMessageEvent(self.__last_msg_event_tag, msg, stack)
@@ -297,8 +358,14 @@ class Runner:
                 result[cid].append(event)
         return result
 
-    def parse_order_updates(self, obj) -> list[InitialOrderEvent | OrdersListChangedEvent | NewOrderEvent |
-                                               OrderStatusChangedEvent]:
+    def parse_order_updates(
+        self, obj
+    ) -> list[
+        InitialOrderEvent
+        | OrdersListChangedEvent
+        | NewOrderEvent
+        | OrderStatusChangedEvent
+    ]:
         """
         Парсит события, связанные с продажами.
 
@@ -313,10 +380,15 @@ class Runner:
             :class:`FunPayAPI.updater.events.OrderStatusChangedEvent`
         """
         events = []
-        self.__last_order_event_tag = obj.get("tag")
+        self.__last_order_event_tag = obj.get('tag')
         if not self.__first_request:
-            events.append(OrdersListChangedEvent(self.__last_order_event_tag,
-                                                 obj["data"]["buyer"], obj["data"]["seller"]))
+            events.append(
+                OrdersListChangedEvent(
+                    self.__last_order_event_tag,
+                    obj['data']['buyer'],
+                    obj['data']['seller'],
+                )
+            )
         if not self.make_order_requests:
             return events
 
@@ -329,29 +401,46 @@ class Runner:
             except exceptions.RequestFailedError as e:
                 logger.error(e)
             except:
-                logger.error("Не удалось обновить список заказов.")
-                logger.debug("TRACEBACK", exc_info=True)
+                logger.error('Не удалось обновить список заказов.')
+                logger.debug('TRACEBACK', exc_info=True)
             time.sleep(1)
         else:
-            logger.error("Не удалось обновить список продаж: превышено кол-во попыток.")
+            logger.error(
+                'Не удалось обновить список продаж: превышено кол-во попыток.'
+            )
             return events
 
         for order in orders_list[1]:
             if order.id not in self.saved_orders:
                 if self.__first_request:
-                    events.append(InitialOrderEvent(self.__last_order_event_tag, order))
+                    events.append(
+                        InitialOrderEvent(self.__last_order_event_tag, order)
+                    )
                 else:
-                    events.append(NewOrderEvent(self.__last_order_event_tag, order))
+                    events.append(
+                        NewOrderEvent(self.__last_order_event_tag, order)
+                    )
                     if order.status == types.OrderStatuses.CLOSED:
-                        events.append(OrderStatusChangedEvent(self.__last_order_event_tag, order))
+                        events.append(
+                            OrderStatusChangedEvent(
+                                self.__last_order_event_tag, order
+                            )
+                        )
                 self.update_order(order)
 
             elif order.status != self.saved_orders[order.id].status:
-                events.append(OrderStatusChangedEvent(self.__last_order_event_tag, order))
+                events.append(
+                    OrderStatusChangedEvent(self.__last_order_event_tag, order)
+                )
                 self.update_order(order)
         return events
 
-    def update_last_message(self, chat_id: int, message_text: str | None, message_time: str | None = None):
+    def update_last_message(
+        self,
+        chat_id: int,
+        message_text: str | None,
+        message_time: str | None = None,
+    ):
         """
         Обновляет сохраненный текст последнего сообщения чата.
 
@@ -365,7 +454,7 @@ class Runner:
         :type message_time: :obj:`str` or :obj:`None`, опционально
         """
         if message_text is None:
-            message_text = "Изображение"
+            message_text = 'Изображение'
         self.last_messages[chat_id] = [message_text[:250], message_time]
 
     def update_order(self, order: types.OrderShortcut):
@@ -392,11 +481,18 @@ class Runner:
         else:
             self.by_bot_ids[chat_id].append(message_id)
 
-    def listen(self, requests_delay: int | float = 6.0,
-               ignore_exceptions: bool = True) -> Generator[InitialChatEvent | ChatsListChangedEvent |
-                                                            LastChatMessageChangedEvent | NewMessageEvent |
-                                                            InitialOrderEvent | OrdersListChangedEvent | NewOrderEvent |
-                                                            OrderStatusChangedEvent]:
+    def listen(
+        self, requests_delay: int | float = 6.0, ignore_exceptions: bool = True
+    ) -> Generator[
+        InitialChatEvent
+        | ChatsListChangedEvent
+        | LastChatMessageChangedEvent
+        | NewMessageEvent
+        | InitialOrderEvent
+        | OrdersListChangedEvent
+        | NewOrderEvent
+        | OrderStatusChangedEvent
+    ]:
         """
         Бесконечно отправляет запросы для получения новых событий.
 
@@ -425,7 +521,9 @@ class Runner:
                 if not ignore_exceptions:
                     raise e
                 else:
-                    logger.error("Произошла ошибка при получении событий. "
-                                 "(ничего страшного, если это сообщение появляется нечасто).")
-                    logger.debug("TRACEBACK", exc_info=True)
+                    logger.error(
+                        'Произошла ошибка при получении событий. '
+                        '(ничего страшного, если это сообщение появляется нечасто).'
+                    )
+                    logger.debug('TRACEBACK', exc_info=True)
             time.sleep(requests_delay)

@@ -1,22 +1,24 @@
 from __future__ import annotations
+
 from typing import TYPE_CHECKING
+
 if TYPE_CHECKING:
     from vertex import Vertex
 
-import FunPayAPI.types
-
-from datetime import datetime
-import Utils.exceptions
 import itertools
-import psutil
 import json
-import sys
 import os
 import re
+import sys
+from datetime import datetime
 
+import psutil
+
+import FunPayAPI.types
+import Utils.exceptions
 
 PHOTO_RE = re.compile(r'\$photo=[\d]+')
-ENTITY_RE = re.compile(r"\$photo=\d+|\$new|(\$sleep=(\d+\.\d+|\d+))")
+ENTITY_RE = re.compile(r'\$photo=\d+|\$new|(\$sleep=(\d+\.\d+|\d+))')
 
 
 def count_products(path: str) -> int:
@@ -29,9 +31,9 @@ def count_products(path: str) -> int:
     """
     if not os.path.exists(path):
         return 0
-    with open(path, "r", encoding="utf-8") as f:
+    with open(path, 'r', encoding='utf-8') as f:
         products = f.read()
-    products = products.split("\n")
+    products = products.split('\n')
     products = list(itertools.filterfalse(lambda el: not el, products))
     return len(products)
 
@@ -42,10 +44,10 @@ def cache_blacklist(blacklist: list[str]) -> None:
 
     :param blacklist: черный список.
     """
-    if not os.path.exists("storage/cache"):
-        os.makedirs("storage/cache")
+    if not os.path.exists('storage/cache'):
+        os.makedirs('storage/cache')
 
-    with open("storage/cache/blacklist.json", "w", encoding="utf-8") as f:
+    with open('storage/cache/blacklist.json', 'w', encoding='utf-8') as f:
         f.write(json.dumps(blacklist, indent=4))
 
 
@@ -55,10 +57,10 @@ def load_blacklist() -> list[str]:
 
     :return: черный список.
     """
-    if not os.path.exists("storage/cache/blacklist.json"):
+    if not os.path.exists('storage/cache/blacklist.json'):
         return []
 
-    with open("storage/cache/blacklist.json", "r", encoding="utf-8") as f:
+    with open('storage/cache/blacklist.json', 'r', encoding='utf-8') as f:
         blacklist = f.read()
 
         try:
@@ -68,7 +70,7 @@ def load_blacklist() -> list[str]:
         return blacklist
 
 
-#def cache_disabled_plugins(disabled_plugins: list[str]) -> None:
+# def cache_disabled_plugins(disabled_plugins: list[str]) -> None:
 #    """
 #    Кэширует UUID отключенных плагинов.
 #
@@ -81,7 +83,7 @@ def load_blacklist() -> list[str]:
 #        f.write(json.dumps(disabled_plugins))
 
 
-#def load_disabled_plugins() -> list[str]:
+# def load_disabled_plugins() -> list[str]:
 #    """
 #    Загружает список UUID отключенных плагинов из кэша.
 #
@@ -101,9 +103,9 @@ def cache_old_users(old_users: list[int]):
     """
     Сохраняет в кэш список пользователей, которые уже писали на аккаунт.
     """
-    if not os.path.exists("storage/cache"):
-        os.makedirs("storage/cache")
-    with open(f"storage/cache/old_users.json", "w", encoding="utf-8") as f:
+    if not os.path.exists('storage/cache'):
+        os.makedirs('storage/cache')
+    with open(f'storage/cache/old_users.json', 'w', encoding='utf-8') as f:
         f.write(json.dumps(old_users, ensure_ascii=False))
 
 
@@ -113,9 +115,9 @@ def load_old_users() -> list[int]:
 
     :return: список ID чатов.
     """
-    if not os.path.exists(f"storage/cache/old_users.json"):
+    if not os.path.exists(f'storage/cache/old_users.json'):
         return []
-    with open(f"storage/cache/old_users.json", "r", encoding="utf-8") as f:
+    with open(f'storage/cache/old_users.json', 'r', encoding='utf-8') as f:
         users = f.read()
     return json.loads(users)
 
@@ -128,27 +130,41 @@ def create_greeting_text(vertex: Vertex):
     balance = vertex.balance
     current_time = datetime.now()
     if current_time.hour < 4:
-        greetings = "Какая прекрасная ночь"
+        greetings = 'Какая прекрасная ночь'
     elif current_time.hour < 12:
-        greetings = "Доброе утро"
+        greetings = 'Доброе утро'
     elif current_time.hour < 17:
-        greetings = "Добрый день"
+        greetings = 'Добрый день'
     else:
-        greetings = "Добрый вечер"
+        greetings = 'Добрый вечер'
 
     lines = [
-        f"* {greetings}, $CYAN{account.username}.",
-        f"* Ваш ID: $YELLOW{account.id}.",
-        f"* Ваш текущий баланс: $CYAN{balance.total_rub} RUB $RESET| $MAGENTA{balance.total_usd} USD $RESET| $YELLOW{balance.total_eur} EUR",
-        f"* Текущие незавершенные сделки: $YELLOW{account.active_sales}.",
-        f"* Удачной торговли!"
+        f'* {greetings}, $CYAN{account.username}.',
+        f'* Ваш ID: $YELLOW{account.id}.',
+        f'* Ваш текущий баланс: $CYAN{balance.total_rub} RUB $RESET| $MAGENTA{balance.total_usd} USD $RESET| $YELLOW{balance.total_eur} EUR',
+        f'* Текущие незавершенные сделки: $YELLOW{account.active_sales}.',
+        f'* Удачной торговли!',
     ]
 
     length = 60
-    greetings_text = f"\n{'-'*length}\n"
+    greetings_text = f"\n{'-' * length}\n"
     for line in lines:
-        greetings_text += line + " "*(length - len(line.replace("$CYAN", "").replace("$YELLOW", "").replace("$MAGENTA", "").replace("$RESET", "")) - 1) + "$RESET*\n"
-    greetings_text += f"{'-'*length}\n"
+        greetings_text += (
+            line
+            + ' '
+            * (
+                length
+                - len(
+                    line.replace('$CYAN', '')
+                    .replace('$YELLOW', '')
+                    .replace('$MAGENTA', '')
+                    .replace('$RESET', '')
+                )
+                - 1
+            )
+            + '$RESET*\n'
+        )
+    greetings_text += f"{'-' * length}\n"
     return greetings_text
 
 
@@ -166,16 +182,16 @@ def time_to_str(time_: int):
     seconds = time_ - days * 86400 - hours * 3600 - minutes * 60
 
     if not any([days, hours, minutes, seconds]):
-        return "0 сек"
-    time_str = ""
+        return '0 сек'
+    time_str = ''
     if days:
-        time_str += f"{days}д"
+        time_str += f'{days}д'
     if hours:
-        time_str += f" {hours}ч"
+        time_str += f' {hours}ч'
     if minutes:
-        time_str += f" {minutes}мин"
+        time_str += f' {minutes}мин'
     if seconds:
-        time_str += f" {seconds}сек"
+        time_str += f' {seconds}сек'
     return time_str.strip()
 
 
@@ -188,14 +204,22 @@ def get_month_name(month_number: int) -> str:
     :return: название месяца в родительном падеже.
     """
     months = [
-        "Января", "Февраля", "Марта",
-        "Апреля", "Мая", "Июня",
-        "Июля", "Августа", "Сентября",
-        "Октября", "Ноября", "Декабря"
+        'Января',
+        'Февраля',
+        'Марта',
+        'Апреля',
+        'Мая',
+        'Июня',
+        'Июля',
+        'Августа',
+        'Сентября',
+        'Октября',
+        'Ноября',
+        'Декабря',
     ]
     if month_number > len(months):
         return months[0]
-    return months[month_number-1]
+    return months[month_number - 1]
 
 
 def get_products(path: str, amount: int = 1) -> list[list[str] | int] | None:
@@ -207,10 +231,10 @@ def get_products(path: str, amount: int = 1) -> list[list[str] | int] | None:
 
     :return: [[Товар/-ы], оставшееся кол-во товара]
     """
-    with open(path, "r", encoding="utf-8") as f:
+    with open(path, 'r', encoding='utf-8') as f:
         products = f.read()
 
-    products = products.split("\n")
+    products = products.split('\n')
 
     # Убираем пустые элементы
     products = list(itertools.filterfalse(lambda el: not el, products))
@@ -219,14 +243,16 @@ def get_products(path: str, amount: int = 1) -> list[list[str] | int] | None:
         raise Utils.exceptions.NoProductsError(path)
 
     elif len(products) < amount:
-        raise Utils.exceptions.NotEnoughProductsError(path, len(products), amount)
+        raise Utils.exceptions.NotEnoughProductsError(
+            path, len(products), amount
+        )
 
     got_products = products[:amount]
     save_products = products[amount:]
     amount = len(save_products)
 
-    with open(path, "w", encoding="utf-8") as f:
-        f.write("\n".join(save_products))
+    with open(path, 'w', encoding='utf-8') as f:
+        f.write('\n'.join(save_products))
 
     return [got_products, amount]
 
@@ -240,16 +266,18 @@ def add_products(path: str, products: list[str], at_zero_position=False):
     :param at_zero_position: добавить товары в начало товарного файла.
     """
     if not at_zero_position:
-        with open(path, "a", encoding="utf-8") as f:
-            f.write("\n"+"\n".join(products))
+        with open(path, 'a', encoding='utf-8') as f:
+            f.write('\n' + '\n'.join(products))
     else:
-        with open(path, "r", encoding="utf-8") as f:
+        with open(path, 'r', encoding='utf-8') as f:
             text = f.read()
-        with open(path, "w", encoding="utf-8") as f:
-            f.write("\n".join(products) + "\n" + text)
+        with open(path, 'w', encoding='utf-8') as f:
+            f.write('\n'.join(products) + '\n' + text)
 
 
-def format_msg_text(text: str, obj: FunPayAPI.types.Message | FunPayAPI.types.ChatShortcut) -> str:
+def format_msg_text(
+    text: str, obj: FunPayAPI.types.Message | FunPayAPI.types.ChatShortcut
+) -> str:
     """
     Форматирует текст, подставляя значения переменных, доступных для MessageEvent.
 
@@ -260,25 +288,31 @@ def format_msg_text(text: str, obj: FunPayAPI.types.Message | FunPayAPI.types.Ch
     """
     date_obj = datetime.now()
     month_name = get_month_name(date_obj.month)
-    date = date_obj.strftime("%d.%m.%Y")
-    str_date = f"{date_obj.day} {month_name}"
-    str_full_date = str_date + f" {date_obj.year} года"
+    date = date_obj.strftime('%d.%m.%Y')
+    str_date = f'{date_obj.day} {month_name}'
+    str_full_date = str_date + f' {date_obj.year} года'
 
-    time_ = date_obj.strftime("%H:%M")
-    time_full = date_obj.strftime("%H:%M:%S")
+    time_ = date_obj.strftime('%H:%M')
+    time_full = date_obj.strftime('%H:%M:%S')
 
-    username = obj.author if isinstance(obj, FunPayAPI.types.Message) else obj.name
-    chat_id = str(obj.chat_id) if isinstance(obj, FunPayAPI.types.Message) else str(obj.id)
+    username = (
+        obj.author if isinstance(obj, FunPayAPI.types.Message) else obj.name
+    )
+    chat_id = (
+        str(obj.chat_id)
+        if isinstance(obj, FunPayAPI.types.Message)
+        else str(obj.id)
+    )
 
     variables = {
-        "$full_date_text": str_full_date,
-        "$date_text": str_date,
-        "$date": date,
-        "$time": time_,
-        "$full_time": time_full,
-        "$username": username,
-        "$message_text": str(obj),
-        "$chat_id": chat_id
+        '$full_date_text': str_full_date,
+        '$date_text': str_date,
+        '$date': date,
+        '$time': time_,
+        '$full_time': time_full,
+        '$username': username,
+        '$message_text': str(obj),
+        '$chat_id': chat_id,
     }
 
     for var in variables:
@@ -286,7 +320,9 @@ def format_msg_text(text: str, obj: FunPayAPI.types.Message | FunPayAPI.types.Ch
     return text
 
 
-def format_order_text(text: str, order: FunPayAPI.types.OrderShortcut | FunPayAPI.types.Order) -> str:
+def format_order_text(
+    text: str, order: FunPayAPI.types.OrderShortcut | FunPayAPI.types.Order
+) -> str:
     """
     Форматирует текст, подставляя значения переменных, доступных для Order.
 
@@ -297,23 +333,31 @@ def format_order_text(text: str, order: FunPayAPI.types.OrderShortcut | FunPayAP
     """
     date_obj = datetime.now()
     month_name = get_month_name(date_obj.month)
-    date = date_obj.strftime("%d.%m.%Y")
-    str_date = f"{date_obj.day} {month_name}"
-    str_full_date = str_date + f" {date_obj.year} года"
+    date = date_obj.strftime('%d.%m.%Y')
+    str_date = f'{date_obj.day} {month_name}'
+    str_full_date = str_date + f' {date_obj.year} года'
 
-    time_ = date_obj.strftime("%H:%M")
-    time_full = date_obj.strftime("%H:%M:%S")
+    time_ = date_obj.strftime('%H:%M')
+    time_full = date_obj.strftime('%H:%M:%S')
 
     variables = {
-        "$full_date_text": str_full_date,
-        "$date_text": str_date,
-        "$date": date,
-        "$time": time_,
-        "$full_time": time_full,
-        "$username": order.buyer_username,
-        "$order_desc": order.description if isinstance(order, FunPayAPI.types.OrderShortcut) else order.short_description if order.short_description else "",
-        "$order_title": order.description if isinstance(order, FunPayAPI.types.OrderShortcut) else order.short_description if order.short_description else "",
-        "$order_id": order.id
+        '$full_date_text': str_full_date,
+        '$date_text': str_date,
+        '$date': date,
+        '$time': time_,
+        '$full_time': time_full,
+        '$username': order.buyer_username,
+        '$order_desc': order.description
+        if isinstance(order, FunPayAPI.types.OrderShortcut)
+        else order.short_description
+        if order.short_description
+        else '',
+        '$order_title': order.description
+        if isinstance(order, FunPayAPI.types.OrderShortcut)
+        else order.short_description
+        if order.short_description
+        else '',
+        '$order_id': order.id,
     }
 
     for var in variables:

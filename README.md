@@ -5,26 +5,26 @@
     <img src="https://i.ibb.co/Sc5mL1G/Screenshot-141.png">
 </h>
 
-<h2 align="center">Перед началом настоятельно рекомендую залететь в наш <a href="https://t.me/funpayplace">Telegram чат</a> и <a href="https://dsc.gg/funpay">Discord сервер</a>. Тут и поможем чем сможем и посидеть можно.</h2>
+<h2 align="center">Перед началом настоятельно рекомендую залететь в наш <a href="https://t.me/funpayplace">Telegram
+чат</a> и <a href="https://dsc.gg/funpay">Discord сервер</a>. Тут и поможем чем сможем и посидеть можно.</h2>
 
 ## :clipboard: **Содержание**
 
 - [Возможности](#robot-возможности)
-  - [FunPay](#shopping_cart-funpay)
-  - [Уведомления и ПУ в Telegram](#left_speech_bubble-уведомления-и-пу-в-telegram)
-  - [Дополнительные возможности](#gear-дополнительные-возможности)
+    - [FunPay](#shopping_cart-funpay)
+    - [Уведомления и ПУ в Telegram](#left_speech_bubble-уведомления-и-пу-в-telegram)
+    - [Дополнительные возможности](#gear-дополнительные-возможности)
 
 - [Преимущества](#1st_place_medal-преимущества)
-  - [Для пользователей](#grinning-для-пользователей)
-  - [Для разработчиков](#computer-для-разработчиков)
+    - [Для пользователей](#grinning-для-пользователей)
+    - [Для разработчиков](#computer-для-разработчиков)
 
 - [Установка](#arrow_down-установка)
-  - [Windows](#large_blue_diamond-windows)
-  - [Linux (Ubuntu)](#hotsprings-linux-ubuntu)
+    - [Windows](#large_blue_diamond-windows)
+    - [Linux (Ubuntu)](#hotsprings-linux-ubuntu)
 - [Настройка конфигов](#hammer_and_wrench-настройка-конфигов)
 - [Мне нужна помощь](#question-мне-нужна-помощь)
 - [Понравилось приложение?](#tada-Понравилось-приложение)
-
 
 ## :robot: **Возможности**
 
@@ -69,7 +69,8 @@
 
 - Выбран самый простой и при этом один из самых мощных языков для такого рода приложений - _Python_.
 - Полная документация кода. Все классы / методы / функции имеют док-строки, type-хинты.
-- Широкое использование ООП. Почти каждый эвент / сообщение / заказ и т.д. представляют собой экземпляр соответствующего класса, а не просто набор данных в JSON.
+- Широкое использование ООП. Почти каждый эвент / сообщение / заказ и т.д. представляют собой экземпляр соответствующего
+  класса, а не просто набор данных в JSON.
 - Сконфигурированный логгер. Никаких принтов!
 - Собственный Python-пакет FunPayAPI, который никак не привязан к FunPay Vertex.
 
@@ -78,7 +79,7 @@
 ### :large_blue_diamond: Windows
 
 1. Скачайте и установите [Python](https://www.python.org/ftp/python/3.11.0/python-3.11.0-amd64.exe).
-   1. При установке поставьте галочку у `Add python.exe to PATH` на первом экране установки.
+    1. При установке поставьте галочку у `Add python.exe to PATH` на первом экране установки.
 2. Скачайте FunPay Vertex.
 3. Перенести папку `FunPayVertex-main` в нужное вам место.
 4. Перейдите в папку `FunPayVertex-main`.
@@ -89,7 +90,7 @@
 ### :hotsprings: Linux (Ubuntu)
 
 1. Выполните команду:
-`wget https://raw.githubusercontent.com/NightStrang6r/FunPayVertex/main/linux-install.sh -nc && bash linux-install.sh`
+   `wget https://raw.githubusercontent.com/NightStrang6r/FunPayVertex/main/linux-install.sh -nc && bash linux-install.sh`
 2. Следуйте инструкциям установщика.
 
 Данный скрипт автоматически установит всё необходимое и запустит бота как фоновый процесс.
@@ -103,4 +104,5 @@
 5. Конфиг автовыдачи: `configs/auto_delivery.cfg`
 
 ## :question: Мне нужна помощь
+
 Если у вас остались какие-либо вопросы, мы с радостью ответим на них в нашем [Discord канале](https://dsc.gg/funpay).

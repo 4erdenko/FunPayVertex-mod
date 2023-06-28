@@ -3,25 +3,28 @@
 """
 
 from __future__ import annotations
+
 from typing import TYPE_CHECKING
+
 if TYPE_CHECKING:
     from vertex import Vertex
-from locales.localizer import Localizer
-from telebot.types import InlineKeyboardMarkup as K, InlineKeyboardButton as B
+
 import configparser
 import datetime
+import json
 import os.path
-import json
-import time
-import json
 from os.path import exists
-from FunPayAPI.common.utils import RegularExpressions
-from bs4 import BeautifulSoup as bs
-import tg_bot.CBT
+
 from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup as bs
+from telebot.types import InlineKeyboardButton as B
+from telebot.types import InlineKeyboardMarkup as K
+
 from FunPayAPI.account import Account
-from FunPayAPI.types import OrderStatuses
+from FunPayAPI.common.utils import RegularExpressions
 from FunPayAPI.updater.events import *
+from locales.localizer import Localizer
+
 localizer = Localizer()
 _ = localizer.translate
 import Utils.vertex_tools
@@ -32,33 +35,34 @@ class NotificationTypes:
     """
     Класс с типами Telegram уведомлений.
     """
-    bot_start = "1"
+
+    bot_start = '1'
     """Уведомление о старте бота."""
-    new_message = "2"
+    new_message = '2'
     """Уведомление о новом сообщении."""
-    command = "3"
+    command = '3'
     """Уведомление о введенной команде."""
-    new_order = "4"
+    new_order = '4'
     """Уведомление о новом заказе."""
-    order_confirmed = "5"
+    order_confirmed = '5'
     """Уведомление о подтверждении заказа."""
-    review = "5r"
+    review = '5r'
     """Уведомление об отзыве."""
-    lots_restore = "6"
+    lots_restore = '6'
     """Уведомление о восстановлении лота."""
-    lots_deactivate = "7"
+    lots_deactivate = '7'
     """Уведомление о деактивации лота."""
-    delivery = "8"
+    delivery = '8'
     """Уведомление о выдаче товара."""
-    lots_raise = "9"
+    lots_raise = '9'
     """Уведомление о поднятии лотов."""
-    other = "10"
+    other = '10'
     """Прочие уведомления (плагины)."""
-    announcement = "11"
+    announcement = '11'
     """Новости / объявления."""
-    ad = "12"
+    ad = '12'
     """Реклама."""
-    critical = "13"
+    critical = '13'
     """Не отключаемые критически важные уведомления."""
 
 
@@ -68,9 +72,11 @@ def load_authorized_users() -> list[int]:
 
     :return: список из id авторизированных пользователей.
     """
-    if not os.path.exists("storage/cache/tg_authorized_users.json"):
+    if not os.path.exists('storage/cache/tg_authorized_users.json'):
         return []
-    with open("storage/cache/tg_authorized_users.json", "r", encoding="utf-8") as f:
+    with open(
+        'storage/cache/tg_authorized_users.json', 'r', encoding='utf-8'
+    ) as f:
         data = f.read()
     return json.loads(data)
 
@@ -81,9 +87,9 @@ def load_notification_settings() -> dict:
 
     :return: настройки Telegram уведомлений.
     """
-    if not os.path.exists("storage/cache/notifications.json"):
+    if not os.path.exists('storage/cache/notifications.json'):
         return {}
-    with open("storage/cache/notifications.json", "r", encoding="utf-8") as f:
+    with open('storage/cache/notifications.json', 'r', encoding='utf-8') as f:
         return json.loads(f.read())
 
 
@@ -93,9 +99,11 @@ def load_answer_templates() -> list[str]:
 
     :return: шаблоны ответов из кэша.
     """
-    if not os.path.exists("storage/cache/answer_templates.json"):
+    if not os.path.exists('storage/cache/answer_templates.json'):
         return []
-    with open("storage/cache/answer_templates.json", "r", encoding="utf-8") as f:
+    with open(
+        'storage/cache/answer_templates.json', 'r', encoding='utf-8'
+    ) as f:
         return json.loads(f.read())
 
 
@@ -105,9 +113,11 @@ def save_authorized_users(users: list[int]) -> None:
 
     :param users: список id авторизированных пользователей.
     """
-    if not os.path.exists("storage/cache/"):
-        os.makedirs("storage/cache/")
-    with open("storage/cache/tg_authorized_users.json", "w", encoding="utf-8") as f:
+    if not os.path.exists('storage/cache/'):
+        os.makedirs('storage/cache/')
+    with open(
+        'storage/cache/tg_authorized_users.json', 'w', encoding='utf-8'
+    ) as f:
         f.write(json.dumps(users))
 
 
@@ -117,9 +127,9 @@ def save_notification_settings(settings: dict) -> None:
 
     :param settings: настройки Telegram-уведомлений.
     """
-    if not os.path.exists("storage/cache/"):
-        os.makedirs("storage/cache/")
-    with open("storage/cache/notifications.json", "w", encoding="utf-8") as f:
+    if not os.path.exists('storage/cache/'):
+        os.makedirs('storage/cache/')
+    with open('storage/cache/notifications.json', 'w', encoding='utf-8') as f:
         f.write(json.dumps(settings))
 
 
@@ -129,9 +139,11 @@ def save_answer_templates(templates: list[str]) -> None:
 
     :param templates: список шаблонов.
     """
-    if not os.path.exists("storage/cache/"):
-        os.makedirs("storage/cache")
-    with open("storage/cache/answer_templates.json", "w", encoding="utf-8") as f:
+    if not os.path.exists('storage/cache/'):
+        os.makedirs('storage/cache')
+    with open(
+        'storage/cache/answer_templates.json', 'w', encoding='utf-8'
+    ) as f:
         f.write(json.dumps(templates))
 
 
@@ -143,16 +155,18 @@ def escape(text: str) -> str:
     :return: форматированный текст.
     """
     escape_characters = {
-        "&": "&amp;",
-        "<": "&lt;",
-        ">": "&gt;",
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
     }
     for char in escape_characters:
         text = text.replace(char, escape_characters[char])
     return text
 
 
-def bool_to_text(value: bool | int | str | None, on: str = "🟢", off: str = "🔴"):
+def bool_to_text(
+    value: bool | int | str | None, on: str = '🟢', off: str = '🔴'
+):
     if value is not None and int(value):
         return on
     return off
@@ -167,18 +181,26 @@ def get_offset(element_index: int, max_elements_on_page: int) -> int:
     """
     elements_amount = element_index + 1
     elements_on_page = elements_amount % max_elements_on_page
-    elements_on_page = elements_on_page if elements_on_page else max_elements_on_page
-    if not elements_amount - elements_on_page:  # если это первая группа команд:
+    elements_on_page = (
+        elements_on_page if elements_on_page else max_elements_on_page
+    )
+    if (
+        not elements_amount - elements_on_page
+    ):  # если это первая группа команд:
         return 0
     else:
         return element_index - elements_on_page + 1
 
 
-def add_navigation_buttons(keyboard_obj: K, curr_offset: int,
-                           max_elements_on_page: int,
-                           elements_on_page: int, elements_amount: int,
-                           callback_text: str,
-                           extra: list | None = None) -> K:
+def add_navigation_buttons(
+    keyboard_obj: K,
+    curr_offset: int,
+    max_elements_on_page: int,
+    elements_on_page: int,
+    elements_amount: int,
+    callback_text: str,
+    extra: list | None = None,
+) -> K:
     """
     Добавляет к переданной клавиатуре кнопки след. / пред. страница.
 
@@ -190,29 +212,38 @@ def add_navigation_buttons(keyboard_obj: K, curr_offset: int,
     :param callback_text: текст callback'а.
     :param extra: доп. данные (будут перечислены через ":")
     """
-    extra = (":" + ":".join(str(i) for i in extra)) if extra else ""
+    extra = (':' + ':'.join(str(i) for i in extra)) if extra else ''
     back, forward = True, True
 
     if curr_offset > 0:
-        back_offset = curr_offset - max_elements_on_page if curr_offset > max_elements_on_page else 0
-        back_cb = f"{callback_text}:{back_offset}{extra}"
-        first_cb = f"{callback_text}:0{extra}"
+        back_offset = (
+            curr_offset - max_elements_on_page
+            if curr_offset > max_elements_on_page
+            else 0
+        )
+        back_cb = f'{callback_text}:{back_offset}{extra}'
+        first_cb = f'{callback_text}:0{extra}'
     else:
         back, back_cb, first_cb = False, CBT.EMPTY, CBT.EMPTY
 
     if curr_offset + elements_on_page < elements_amount:
         forward_offset = curr_offset + elements_on_page
-        last_page_offset = get_offset(elements_amount - 1, max_elements_on_page)
-        forward_cb = f"{callback_text}:{forward_offset}{extra}"
-        last_cb = f"{callback_text}:{last_page_offset}{extra}"
+        last_page_offset = get_offset(
+            elements_amount - 1, max_elements_on_page
+        )
+        forward_cb = f'{callback_text}:{forward_offset}{extra}'
+        last_cb = f'{callback_text}:{last_page_offset}{extra}'
     else:
         forward, forward_cb, last_cb = False, CBT.EMPTY, CBT.EMPTY
 
     if back or forward:
-        keyboard_obj.row(B("◀️◀️", callback_data=first_cb), B("◀️", callback_data=back_cb),
-                         B("▶️", callback_data=forward_cb), B("▶️▶️", callback_data=last_cb))
+        keyboard_obj.row(
+            B('◀️◀️', callback_data=first_cb),
+            B('◀️', callback_data=back_cb),
+            B('▶️', callback_data=forward_cb),
+            B('▶️▶️', callback_data=last_cb),
+        )
     return keyboard_obj
-
 
 
 def generate_profile_text(vertex: Vertex) -> str:
@@ -234,62 +265,94 @@ def generate_profile_text(vertex: Vertex) -> str:
 
 <i>Обновлено:</i>  <code>{time.strftime('%H:%M:%S', time.localtime(account.last_update))}</code>"""
 
+
 ORDER_CONFIRMED = {}
 
+
 def message_hook(vertex: Vertex, event: NewMessageEvent):
-    if event.message.type not in [MessageTypes.ORDER_CONFIRMED, MessageTypes.ORDER_CONFIRMED_BY_ADMIN, MessageTypes.ORDER_REOPENED, MessageTypes.REFUND]:
+    if event.message.type not in [
+        MessageTypes.ORDER_CONFIRMED,
+        MessageTypes.ORDER_CONFIRMED_BY_ADMIN,
+        MessageTypes.ORDER_REOPENED,
+        MessageTypes.REFUND,
+    ]:
         return
-    if event.message.type not in [MessageTypes.ORDER_REOPENED, MessageTypes.REFUND] and bs(event.message.html, "html.parser").find("a").text == vertex.account.username:
+    if (
+        event.message.type
+        not in [MessageTypes.ORDER_REOPENED, MessageTypes.REFUND]
+        and bs(event.message.html, 'html.parser').find('a').text
+        == vertex.account.username
+    ):
         return
 
     id = RegularExpressions().ORDER_ID.findall(str(event.message))[0][1:]
 
-    if event.message.type in [MessageTypes.ORDER_REOPENED, MessageTypes.REFUND]:
+    if event.message.type in [
+        MessageTypes.ORDER_REOPENED,
+        MessageTypes.REFUND,
+    ]:
         if id in ORDER_CONFIRMED:
             del ORDER_CONFIRMED[id]
     else:
-        ORDER_CONFIRMED[id] = {"time": time.time(), "price": vertex.account.get_order(id).sum}
-        with open("storage/cache/advProfileStat.json", "w", encoding="UTF-8") as f:
+        ORDER_CONFIRMED[id] = {
+            'time': time.time(),
+            'price': vertex.account.get_order(id).sum,
+        }
+        with open(
+            'storage/cache/advProfileStat.json', 'w', encoding='UTF-8'
+        ) as f:
             f.write(json.dumps(ORDER_CONFIRMED, indent=4, ensure_ascii=False))
 
 
-def get_sales(account: Account, start_from: str | None = None, include_paid: bool = True, include_closed: bool = True,
-              include_refunded: bool = True, exclude_ids: list[str] | None = None,
-              **filters) -> tuple[str | None, list[types.OrderShortcut]]:
+def get_sales(
+    account: Account,
+    start_from: str | None = None,
+    include_paid: bool = True,
+    include_closed: bool = True,
+    include_refunded: bool = True,
+    exclude_ids: list[str] | None = None,
+    **filters,
+) -> tuple[str | None, list[types.OrderShortcut]]:
     exclude_ids = exclude_ids or []
-    link = "https://funpay.com/orders/trade?"
+    link = 'https://funpay.com/orders/trade?'
 
     for name in filters:
-        link += f"{name}={filters[name]}&"
+        link += f'{name}={filters[name]}&'
     link = link[:-1]
 
     if start_from:
-        filters["continue"] = start_from
+        filters['continue'] = start_from
 
-    response = account.method("post" if start_from else "get", link, {}, filters, raise_not_200=True)
+    response = account.method(
+        'post' if start_from else 'get', link, {}, filters, raise_not_200=True
+    )
     html_response = response.content.decode()
 
-    parser = bs(html_response, "html.parser")
-    check_user = parser.find("div", {"class": "content-account content-account-login"})
+    parser = bs(html_response, 'html.parser')
+    check_user = parser.find(
+        'div', {'class': 'content-account content-account-login'}
+    )
 
-    next_order_id = parser.find("input", {"type": "hidden", "name": "continue"})
+    next_order_id = parser.find(
+        'input', {'type': 'hidden', 'name': 'continue'}
+    )
     if not next_order_id:
         next_order_id = None
     else:
-        next_order_id = next_order_id.get("value")
+        next_order_id = next_order_id.get('value')
 
-    order_divs = parser.find_all("a", {"class": "tc-item"})
+    order_divs = parser.find_all('a', {'class': 'tc-item'})
     if not order_divs:
         return None, []
 
     sells = []
     for div in order_divs:
-        classname = div.get("class")
-        if "warning" in classname:
+        classname = div.get('class')
+        if 'warning' in classname:
             if not include_refunded:
                 continue
             order_status = types.OrderStatuses.REFUNDED
-        elif "info" in classname:
+        elif 'info' in classname:
             if not include_paid:
                 continue
             order_status = types.OrderStatuses.PAID
@@ -298,58 +361,91 @@ def get_sales(account: Account, start_from: str | None = None, include_paid: boo
                 continue
             order_status = types.OrderStatuses.CLOSED
 
-        order_id = div.find("div", {"class": "tc-order"}).text[1:]
+        order_id = div.find('div', {'class': 'tc-order'}).text[1:]
         if order_id in exclude_ids:
             continue
 
-        description = div.find("div", {"class": "order-desc"}).find("div").text
-        price = float(div.find("div", {"class": "tc-price"}).text.split(" ")[0])
+        description = div.find('div', {'class': 'order-desc'}).find('div').text
+        price = float(
+            div.find('div', {'class': 'tc-price'}).text.split(' ')[0]
+        )
 
-        buyer_div = div.find("div", {"class": "media-user-name"}).find("span")
+        buyer_div = div.find('div', {'class': 'media-user-name'}).find('span')
         buyer_username = buyer_div.text
-        buyer_id = int(buyer_div.get("data-href")[:-1].split("https://funpay.com/users/")[1])
+        buyer_id = int(
+            buyer_div.get('data-href')[:-1].split('https://funpay.com/users/')[
+                1
+            ]
+        )
 
-        order_obj = types.OrderShortcut(order_id, description, price, buyer_username, buyer_id, order_status,
-                                        datetime.datetime.now(), "", str(div))
+        order_obj = types.OrderShortcut(
+            order_id,
+            description,
+            price,
+            buyer_username,
+            buyer_id,
+            order_status,
+            datetime.datetime.now(),
+            '',
+            str(div),
+        )
         sells.append(order_obj)
 
     return next_order_id, sells
 
+
 def generate_adv_profile(account: Account) -> str:
-    if exists("storage/cache/advProfileStat.json"):
-        with open("storage/cache/advProfileStat.json", "r", encoding="utf-8") as f:
+    if exists('storage/cache/advProfileStat.json'):
+        with open(
+            'storage/cache/advProfileStat.json', 'r', encoding='utf-8'
+        ) as f:
             global ORDER_CONFIRMED
             ORDER_CONFIRMED = json.loads(f.read())
-    sales = {"day": 0, "week": 0, "month": 0, "all": 0}
-    salesPrice = {"day": 0.0, "week": 0.0, "month": 0.0, "all": 0.0}
-    refunds = {"day": 0, "week": 0, "month": 0, "all": 0}
-    refundsPrice = {"day": 0.0, "week": 0.0, "month": 0.0, "all": 0.0}
-    canWithdraw = {"now": 0.0, "hour": 0.0, "day": 0.0, "2day": 0.0}
+    sales = {'day': 0, 'week': 0, 'month': 0, 'all': 0}
+    salesPrice = {'day': 0.0, 'week': 0.0, 'month': 0.0, 'all': 0.0}
+    refunds = {'day': 0, 'week': 0, 'month': 0, 'all': 0}
+    refundsPrice = {'day': 0.0, 'week': 0.0, 'month': 0.0, 'all': 0.0}
+    canWithdraw = {'now': 0.0, 'hour': 0.0, 'day': 0.0, '2day': 0.0}
 
     account.get()
 
     for order in ORDER_CONFIRMED.copy():
-        if time.time() - ORDER_CONFIRMED[order]["time"] > 172800:
+        if time.time() - ORDER_CONFIRMED[order]['time'] > 172800:
             del ORDER_CONFIRMED[order]
             continue
-        if time.time() - ORDER_CONFIRMED[order]["time"] > 169200:
-            canWithdraw["hour"] += ORDER_CONFIRMED[order]["price"]
-        elif time.time() - ORDER_CONFIRMED[order]["time"] > 86400:
-            canWithdraw["day"] += ORDER_CONFIRMED[order]["price"]
+        if time.time() - ORDER_CONFIRMED[order]['time'] > 169200:
+            canWithdraw['hour'] += ORDER_CONFIRMED[order]['price']
+        elif time.time() - ORDER_CONFIRMED[order]['time'] > 86400:
+            canWithdraw['day'] += ORDER_CONFIRMED[order]['price']
         else:
-            canWithdraw["2day"] += ORDER_CONFIRMED[order]["price"]
+            canWithdraw['2day'] += ORDER_CONFIRMED[order]['price']
 
-    randomLotPageLink = bs(account.method("get", "https://funpay.com/lots/693/", {}, {}).text, "html.parser").find("a", {"class": "tc-item"})["href"]
-    randomLotPageParse = bs(account.method("get", randomLotPageLink, {}, {}).text, "html.parser")
+    randomLotPageLink = bs(
+        account.method('get', 'https://funpay.com/lots/693/', {}, {}).text,
+        'html.parser',
+    ).find('a', {'class': 'tc-item'})['href']
+    randomLotPageParse = bs(
+        account.method('get', randomLotPageLink, {}, {}).text, 'html.parser'
+    )
 
-    balance = randomLotPageParse.select_one(".badge-balance").text.split(" ")[0]
-    currency = randomLotPageParse.select_one(".badge-balance").text.split(" ")[1]
+    balance = randomLotPageParse.select_one('.badge-balance').text.split(' ')[
+        0
+    ]
+    currency = randomLotPageParse.select_one('.badge-balance').text.split(' ')[
+        1
+    ]
 
-    canWithdraw["now"] = randomLotPageParse.find("select", {"class": "form-control input-lg selectpicker"})["data-balance-rub"]
-    if currency == "$":
-        canWithdraw["now"] = randomLotPageParse.find("select", {"class": "form-control input-lg selectpicker"})["data-balance-usd"]
-    elif currency == "€":
-        canWithdraw["now"] = randomLotPageParse.find("select", {"class": "form-control input-lg selectpicker"})["data-balance-eur"]
+    canWithdraw['now'] = randomLotPageParse.find(
+        'select', {'class': 'form-control input-lg selectpicker'}
+    )['data-balance-rub']
+    if currency == '$':
+        canWithdraw['now'] = randomLotPageParse.find(
+            'select', {'class': 'form-control input-lg selectpicker'}
+        )['data-balance-usd']
+    elif currency == '€':
+        canWithdraw['now'] = randomLotPageParse.find(
+            'select', {'class': 'form-control input-lg selectpicker'}
+        )['data-balance-eur']
 
     next_order_id, all_sales = get_sales(account)
 
@@ -360,50 +456,69 @@ def generate_adv_profile(account: Account) -> str:
 
     for sale in all_sales:
         if sale.status == OrderStatuses.REFUNDED:
-            refunds["all"] += 1
-            refundsPrice["all"] += sale.price
+            refunds['all'] += 1
+            refundsPrice['all'] += sale.price
         else:
-            sales["all"] += 1
-            salesPrice["all"] += sale.price
+            sales['all'] += 1
+            salesPrice['all'] += sale.price
 
-        upperDate = bs(sale.html, "html.parser").find("div", {"class": "tc-date-time"}).text
-        date = bs(sale.html, "html.parser").find("div", {"class": "tc-date-left"}).text
+        upperDate = (
+            bs(sale.html, 'html.parser')
+            .find('div', {'class': 'tc-date-time'})
+            .text
+        )
+        date = (
+            bs(sale.html, 'html.parser')
+            .find('div', {'class': 'tc-date-left'})
+            .text
+        )
 
-        if "сегодня" in upperDate or "сьогодні" in upperDate or "today" in upperDate:
+        if (
+            'сегодня' in upperDate
+            or 'сьогодні' in upperDate
+            or 'today' in upperDate
+        ):
             if sale.status == OrderStatuses.REFUNDED:
-                refunds["day"] += 1
-                refunds["week"] += 1
-                refunds["month"] += 1
-                refundsPrice["day"] += sale.price
-                refundsPrice["week"] += sale.price
-                refundsPrice["month"] += sale.price
+                refunds['day'] += 1
+                refunds['week'] += 1
+                refunds['month'] += 1
+                refundsPrice['day'] += sale.price
+                refundsPrice['week'] += sale.price
+                refundsPrice['month'] += sale.price
             else:
-                sales["day"] += 1
-                sales["week"] += 1
-                sales["month"] += 1
-                salesPrice["day"] += sale.price
-                salesPrice["week"] += sale.price
-                salesPrice["month"] += sale.price
-        elif "день" in date or "дня" in date or "дней" in date or "дні" in date or "day" in date or "час" in date or "hour" in date or "годин" in date:
+                sales['day'] += 1
+                sales['week'] += 1
+                sales['month'] += 1
+                salesPrice['day'] += sale.price
+                salesPrice['week'] += sale.price
+                salesPrice['month'] += sale.price
+        elif (
+            'день' in date
+            or 'дня' in date
+            or 'дней' in date
+            or 'дні' in date
+            or 'day' in date
+            or 'час' in date
+            or 'hour' in date
+            or 'годин' in date
+        ):
             if sale.status == OrderStatuses.REFUNDED:
-                refunds["week"] += 1
-                refunds["month"] += 1
-                refundsPrice["week"] += sale.price
-                refundsPrice["month"] += sale.price
+                refunds['week'] += 1
+                refunds['month'] += 1
+                refundsPrice['week'] += sale.price
+                refundsPrice['month'] += sale.price
             else:
-                sales["week"] += 1
-                sales["month"] += 1
-                salesPrice["week"] += sale.price
-                salesPrice["month"] += sale.price
-        elif "недел" in date or "тижд" in date or "week" in date:
+                sales['week'] += 1
+                sales['month'] += 1
+                salesPrice['week'] += sale.price
+                salesPrice['month'] += sale.price
+        elif 'недел' in date or 'тижд' in date or 'week' in date:
             if sale.status == OrderStatuses.REFUNDED:
-                refunds["month"] += 1
-                refundsPrice["month"] += sale.price
+                refunds['month'] += 1
+                refundsPrice['month'] += sale.price
             else:
-                sales["month"] += 1
-                salesPrice["month"] += sale.price
-
-
+                sales['month'] += 1
+                salesPrice['month'] += sale.price
 
     return f"""Статистика аккаунта <b><i>{account.username}</i></b>
 
@@ -431,6 +546,7 @@ def generate_adv_profile(account: Account) -> str:
 
 <i>Обновлено:</i>  <code>{time.strftime('%H:%M:%S', time.localtime(account.last_update))}</code>"""
 
+
 def get_orders(acc: Account, start_from: str) -> tuple[str | None, list[str]]:
     """
     Получает список ордеров на аккаунте.
@@ -439,7 +555,7 @@ def get_orders(acc: Account, start_from: str) -> tuple[str | None, list[str]]:
     attempts = 3
     while attempts:
         try:
-            result = acc.get_sells(start_from=start_from or None, state="paid")
+            result = acc.get_sells(start_from=start_from or None, state='paid')
             break
         except:
             attempts -= 1
@@ -449,12 +565,13 @@ def get_orders(acc: Account, start_from: str) -> tuple[str | None, list[str]]:
     orders = result[1]
     old_orders = []
     for i in orders:
-        parser = BeautifulSoup(i.html, "html.parser")
-        time_text = parser.find("div", {"class": "tc-date-left"}).text
-        if any(map(time_text.__contains__, ["сек", "мин", "час", "тол"])):
+        parser = BeautifulSoup(i.html, 'html.parser')
+        time_text = parser.find('div', {'class': 'tc-date-left'}).text
+        if any(map(time_text.__contains__, ['сек', 'мин', 'час', 'тол'])):
             continue
-        old_orders.append(parser.find("div", {"class": "tc-order"}).text)
+        old_orders.append(parser.find('div', {'class': 'tc-order'}).text)
     return result[0], old_orders
+
 
 def get_all_old_orders(acc: Account) -> list[str]:
     """
@@ -462,7 +579,7 @@ def get_all_old_orders(acc: Account) -> list[str]:
     :param acc: экземпляр аккаунта.
     :return: список старых заказов.
     """
-    start_from = ""
+    start_from = ''
     old_orders = []
     while start_from is not None:
         result = get_orders(acc, start_from)
@@ -470,6 +587,7 @@ def get_all_old_orders(acc: Account) -> list[str]:
         old_orders.extend(result[1])
         time.sleep(1)
     return old_orders
+
 
 def generate_lot_info_text(lot_obj: configparser.SectionProxy) -> str:
     """
@@ -479,16 +597,26 @@ def generate_lot_info_text(lot_obj: configparser.SectionProxy) -> str:
 
     :return: сгенерированный текст с информацией о лоте.
     """
-    if lot_obj.get("productsFileName") is None:
-        file_path = "<b><u>не привязан.</u></b>"
-        products_amount = "<code>∞</code>"
+    if lot_obj.get('productsFileName') is None:
+        file_path = '<b><u>не привязан.</u></b>'
+        products_amount = '<code>∞</code>'
     else:
-        file_path = f"<code>storage/products/{lot_obj.get('productsFileName')}</code>"
-        if not os.path.exists(f"storage/products/{lot_obj.get('productsFileName')}"):
-            with open(f"storage/products/{lot_obj.get('productsFileName')}", "w", encoding="utf-8"):
+        file_path = (
+            f"<code>storage/products/{lot_obj.get('productsFileName')}</code>"
+        )
+        if not os.path.exists(
+            f"storage/products/{lot_obj.get('productsFileName')}"
+        ):
+            with open(
+                f"storage/products/{lot_obj.get('productsFileName')}",
+                'w',
+                encoding='utf-8',
+            ):
                 pass
-        products_amount = Utils.vertex_tools.count_products(f"storage/products/{lot_obj.get('productsFileName')}")
-        products_amount = f"<code>{products_amount}</code>"
+        products_amount = Utils.vertex_tools.count_products(
+            f"storage/products/{lot_obj.get('productsFileName')}"
+        )
+        products_amount = f'<code>{products_amount}</code>'
 
     message = f"""<b>{escape(lot_obj.name)}</b>\n
 <b><i>Текст выдачи:</i></b> <code>{escape(lot_obj["response"])}</code>\n
