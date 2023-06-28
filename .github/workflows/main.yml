@@ -66,7 +66,9 @@ jobs:
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/funpay_vertex_bot:latest
   deploy:
-    needs: build-test
+    needs:
+      - build-test
+      - push-to-dockerhub
     runs-on: ubuntu-latest
 
     steps:
