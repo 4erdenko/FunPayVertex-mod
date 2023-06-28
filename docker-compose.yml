@@ -3,5 +3,7 @@ version: '3.8'
 services:
   funpay:
     image: 4erdenko/funpay_vertex_bot
+    restart: unless-stopped
+    container_name: funpay_bot
     volumes:
       - ./configs/:/fp_bot/configs/

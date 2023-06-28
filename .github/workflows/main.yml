@@ -6,69 +6,69 @@ on:
       - main
 
 jobs:
-#  build-test:
-#    runs-on: ubuntu-latest
-#    steps:
-#
-#      - name: Checkout repository
-#        uses: actions/checkout@v3
-#
-#      - name: Build Docker image
-#        run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/funpay_vertex_bot:latest .
-#
-#      - name: Install expect package
-#        run: sudo apt-get install -y expect
-#
-#      - name: Run Docker container and execute commands
-#        env:
-#          GOLDEN_KEY: ${{ secrets.GOLDEN_KEY }}
-#          USER_AGENT: ${{ secrets.USER_AGENT }}
-#          ENABLED: ${{ secrets.ENABLED }}
-#          TOKEN: ${{ secrets.TOKEN }}
-#          SECRET_KEY: ${{ secrets.SECRET_KEY }}
-#        run: |
-#          expect -c "
-#            spawn docker run -i --name funpay_bot ${{ secrets.DOCKERHUB_USERNAME }}/funpay_vertex_bot:latest
-#            expect \"└───> \"
-#            send \"$GOLDEN_KEY\r\"
-#            expect \"└───> \"
-#            send \"$USER_AGENT\r\"
-#            expect \"└───> \"
-#            send \"$ENABLED\r\"
-#            expect \"└───> \"
-#            send \"$TOKEN\r\"
-#            expect \"└───> \"
-#            send \"$SECRET_KEY\r\"
-#            expect eof"
-#
-#      - name: Checking logs
-#        run: docker logs funpay_bot
-#
-#  push-to-dockerhub:
-#    needs: build-test
-#    runs-on: ubuntu-latest
-#
-#    steps:
-#      - name: Check out the repo
-#        uses: actions/checkout@v3
-#      - name: Set up Docker Buildx
-#        uses: docker/setup-buildx-action@v2
-#      - name: Login to Docker
-#        uses: docker/login-action@v2
-#        with:
-#          username: ${{ secrets.DOCKERHUB_USERNAME }}
-#          password: ${{ secrets.DOCKERHUB_PASSWORD }}
-#
-#      - name: Push Docker image
-#        uses: docker/build-push-action@v4
-#        with:
-#          context: .
-#          push: true
-#          tags: ${{ secrets.DOCKERHUB_USERNAME }}/funpay_vertex_bot:latest
+  build-test:
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Build Docker image
+        run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/funpay_vertex_bot:latest .
+
+      - name: Install expect package
+        run: sudo apt-get install -y expect
+
+      - name: Run Docker container and execute commands
+        env:
+          GOLDEN_KEY: ${{ secrets.GOLDEN_KEY }}
+          USER_AGENT: ${{ secrets.USER_AGENT }}
+          ENABLED: ${{ secrets.ENABLED }}
+          TOKEN: ${{ secrets.TOKEN }}
+          SECRET_KEY: ${{ secrets.SECRET_KEY }}
+        run: |
+          expect -c "
+            spawn docker run -i --name funpay_bot ${{ secrets.DOCKERHUB_USERNAME }}/funpay_vertex_bot:latest
+            expect \"└───> \"
+            send \"$GOLDEN_KEY\r\"
+            expect \"└───> \"
+            send \"$USER_AGENT\r\"
+            expect \"└───> \"
+            send \"$ENABLED\r\"
+            expect \"└───> \"
+            send \"$TOKEN\r\"
+            expect \"└───> \"
+            send \"$SECRET_KEY\r\"
+            expect eof"
+
+      - name: Checking logs
+        run: docker logs funpay_bot
+
+  push-to-dockerhub:
+    needs: build-test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v3
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+      - name: Login to Docker
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+
+      - name: Push Docker image
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/funpay_vertex_bot:latest
   deploy:
-#    needs:
-#      - build-test
-#      - push-to-dockerhub
+    needs:
+      - build-test
+      - push-to-dockerhub
     runs-on: ubuntu-latest
 
     steps:
@@ -112,3 +112,14 @@ jobs:
             cat <<EOF > _main.cfg
             ${{ secrets._MAIN_CFG }}
             EOF
+      - name: Launch container
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USER }}
+          key: ${{ secrets.SSH_KEY }}
+          passphrase: ${{ secrets.SSH_PASSPHRASE }}
+          script: |
+            cd /home/ubuntu/telegram_bots/funpay_bot
+            sudo docker compose pull
+            sudo docker compose up -d
