@@ -15,10 +15,10 @@ jobs:
 
       - name: Build Docker image
         run: docker build -t funpay_bot_image .
-      - name: Установка пакета expect
+      - name: Install apt expect
         run: sudo apt-get install -y expect
 
-      - name: Запуск Docker-контейнера и выполнение команд
+      - name: Launch container
         env:
           GOLDEN_KEY: ${{ secrets.GOLDEN_KEY }}
           USER_AGENT: ${{ secrets.USER_AGENT }}
