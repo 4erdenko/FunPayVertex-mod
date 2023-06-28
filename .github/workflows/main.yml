@@ -65,43 +65,44 @@ jobs:
           context: .
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/funpay_vertex_bot:latest
+  deploy:
+    needs: build-test
+    runs-on: ubuntu-latest
 
-#    needs: build-test
-#    runs-on: ubuntu-latest
-#
-#    steps:
-#      - name: Checkout repository
-#        uses: actions/checkout@v2
-#
-#      - name: Create target directory
-#        uses: appleboy/ssh-action@master
-#        with:
-#          host: ${{ secrets.HOST }}
-#          username: ${{ secrets.USER }}
-#          key: ${{ secrets.SSH_KEY }}
-#          passphrase: ${{ secrets.SSH_PASSPHRASE }}
-#          script: mkdir -p /home/ubuntu/telegram_bots/funpay_bot
-#
-#      - name: Copy code via ssh
-#        uses: appleboy/scp-action@master
-#        with:
-#          host: ${{ secrets.HOST }}
-#          username: ${{ secrets.USER }}
-#          key: ${{ secrets.SSH_KEY }}
-#          passphrase: ${{ secrets.SSH_PASSPHRASE }}
-#          source: "."
-#          target: "/home/ubuntu/telegram_bots/funpay_bot"
-#
-#      - name: Executing remote ssh commands to deploy
-#        uses: appleboy/ssh-action@master
-#        with:
-#          host: ${{ secrets.HOST }}
-#          username: ${{ secrets.USER }}
-#          key: ${{ secrets.SSH_KEY }}
-#          passphrase: ${{ secrets.SSH_PASSPHRASE }}
-#          script: |
-#            cd /home/ubuntu/telegram_bots/funpay_bot
-#            sudo docker stop funpay_bot
-#            sudo docker build --build-arg GOLDEN_KEY=${{ secrets.GOLDEN_KEY }} --build-arg USER_AGENT=${{ secrets.USER_AGENT }} --build-arg ENABLED=${{ secrets.ENABLED }} --build-arg TOKEN=${{ secrets.TELEGRAM_BOT_TOKEN }} --build-arg SECRET_KEY=${{ secrets.SECRET_KEY }} -t funpay_bot_image .
-#            sudo docker run -d --restart=unless-stopped --name funpay_bot funpay_bot_image
-#            sudo docker image prune -f
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Create target directory
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USER }}
+          key: ${{ secrets.SSH_KEY }}
+          passphrase: ${{ secrets.SSH_PASSPHRASE }}
+          script: mkdir -p /home/ubuntu/telegram_bots/funpay_bot
+
+      - name: Create compose file
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USER }}
+          key: ${{ secrets.SSH_KEY }}
+          passphrase: ${{ secrets.SSH_PASSPHRASE }}
+          script: |
+            cd /home/ubuntu/telegram_bots/funpay_bot
+            rm -rf docker-compose.yml
+            echo ${{ secrets.DOCKER_COMPOSE_YML }} > docker-compose.yml
+
+      - name: Create configs folder on host
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USER }}
+          key: ${{ secrets.SSH_KEY }}
+          passphrase: ${{ secrets.SSH_PASSPHRASE }}
+          script: |
+            cd /home/ubuntu/telegram_bots/funpay_bot
+            mkdir -p /home/ubuntu/telegram_bots/funpay_bot/configs
+            cd configs
+            echo ${{ secrets._MAIN_CFG }} > _main.cfg
