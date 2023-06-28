@@ -1,5 +1,7 @@
 # Funpay Bot
-
+![Python](https://img.shields.io/badge/python-v3.11-blue)
+![Docker](https://img.shields.io/badge/docker-latest-blue)
+[![Build Status](https://img.shields.io/endpoint.svg?url=https%3A%2F%2Factions-badge.atrox.dev%2F4erdenko%2FFunPayVertex-mod%2Fbadge%3Fref%3Dmain&style=flat)](https://actions-badge.atrox.dev/4erdenko/FunPayVertex-mod/goto?ref=main)  
 This repository is a fork of the [FunPayVertex](https://github.com/NightStrang6r/FunPayVertex) project and contains the code for the Funpay Bot, a Telegram bot built with Python.
 
 ## Table of Contents
@@ -7,7 +9,7 @@ This repository is a fork of the [FunPayVertex](https://github.com/NightStrang6r
 1. [Getting Started](#getting-started)
 2. [Prerequisites](#prerequisites)
 3. [Installation](#installation)
-4. [Usage](#usage)
+4. [Usage locally](#usage-locally)
 5. [Deployment](#deployment)
 6. [Custom Changes](#custom-changes)
 7. [Contributing](#contributing)
@@ -46,7 +48,7 @@ These instructions will get you a copy of the project up and running on your loc
 
 5. After your `_main.cfg` is set up correctly, it can be used to set up your Github secrets for CI/CD.
 
-### Usage Locally
+### Usage locally
 
 You can use Docker Compose to run your bot. To install Docker, please follow the instructions for your specific operating system:
 
