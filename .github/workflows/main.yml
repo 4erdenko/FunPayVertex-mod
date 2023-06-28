@@ -26,17 +26,20 @@ jobs:
           SECRET_KEY: ${{ secrets.SECRET_KEY }}
         run: |
           echo "${GOLDEN_KEY}" | docker run --name funpay_bot funpay_bot_image |
-          expect -c '
+          expect -c "
             spawn docker attach funpay_bot
-            expect "└───> "
-            send "${USER_AGENT}\r"
-            expect "└───> "
-            send "${ENABLED}\r"
-            expect "└───> "
-            send "${TOKEN}\r"
-            expect "└───> "
-            send "${SECRET_KEY}\r"
-            interact' && python main.py
+            expect \"└───> \"
+            send \"$GOLDEN_KEY\r\"
+            expect \"└───> \"
+            send \"$USER_AGENT\r\"
+            expect \"└───> \"
+            send \"$ENABLED\r\"
+            expect \"└───> \"
+            send \"$TOKEN\r\"
+            expect \"└───> \"
+            send \"$SECRET_KEY\r\"
+            interact" && python main.py
+
 
       - name: Wait for bot to initialize
         run: sleep 10
