@@ -57,7 +57,7 @@ You can use Docker Compose to run your bot. To install Docker, please follow the
 Ensure that your `_main.cfg` is placed in the `/configs/` directory. Then, you can use the following command to run your bot with Docker Compose:
 
 ```bash
-docker-compose up -d
+docker compose up -d
 ```
 
 ## Deployment
@@ -77,7 +77,7 @@ Set the following secrets in your Github repository:
 These secrets will be used in the Github Actions CI/CD pipeline to automate the process of testing, building, and deploying your bot.
 
 ## Custom Changes
-
+Code refactoring a little bit, closely to PEP8.
 This fork includes a special feature in the `handlers.py` file. Specifically, within the `deliver_goods` function (line 682), the `else` block includes the following code:
 
 ```python
