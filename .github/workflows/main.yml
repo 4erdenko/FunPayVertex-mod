@@ -15,8 +15,30 @@ jobs:
 
       - name: Build Docker image
         run: docker build -t funpay_bot_image .
-      - name: Run Docker container
-        run: docker run --name funpay_bot funpay_bot_image
+      - name: Установка пакета expect
+        run: sudo apt-get install -y expect
+
+      - name: Запуск Docker-контейнера и выполнение команд
+        env:
+          GOLDEN_KEY: ${{ secrets.GOLDEN_KEY }}
+          USER_AGENT: ${{ secrets.USER_AGENT }}
+          ENABLED: ${{ secrets.ENABLED }}
+          TOKEN: ${{ secrets.TOKEN }}
+          SECRET_KEY: ${{ secrets.SECRET_KEY }}
+        run: |
+          echo "${GOLDEN_KEY}" | docker run -i --name funpay_bot funpay_bot_image |
+          expect -c '
+            spawn docker attach funpay_bot
+            expect "└───> "
+            send "${USER_AGENT}\r"
+            expect "└───> "
+            send "${ENABLED}\r"
+            expect "└───> "
+            send "${TOKEN}\r"
+            expect "└───> "
+            send "${SECRET_KEY}\r"
+            interact' && python main.py
+
 
       - name: Checking logs
         run: docker logs funpay_bot
@@ -27,7 +49,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkot@v3
+        uses: actions/checkout@v3
       - name: Login to DockerHub
         uses: docker/login-action@v1
         with:
