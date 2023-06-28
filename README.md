@@ -1,108 +1,99 @@
-<h1 align="center">FunPay Vertex</h1>
-<h4 align="center">Простой и эффективный бот для автоматизации FunPay</h4>
+# Funpay Bot
 
-<h1 align="center">
-    <img src="https://i.ibb.co/Sc5mL1G/Screenshot-141.png">
-</h>
+This repository is a fork of the [FunPayVertex](https://github.com/NightStrang6r/FunPayVertex) project and contains the code for the Funpay Bot, a Telegram bot built with Python.
 
-<h2 align="center">Перед началом настоятельно рекомендую залететь в наш <a href="https://t.me/funpayplace">Telegram
-чат</a> и <a href="https://dsc.gg/funpay">Discord сервер</a>. Тут и поможем чем сможем и посидеть можно.</h2>
+## Table of Contents
 
-## :clipboard: **Содержание**
+1. [Getting Started](#getting-started)
+2. [Prerequisites](#prerequisites)
+3. [Installation](#installation)
+4. [Usage](#usage)
+5. [Deployment](#deployment)
+6. [Custom Changes](#custom-changes)
+7. [Contributing](#contributing)
 
-- [Возможности](#robot-возможности)
-    - [FunPay](#shopping_cart-funpay)
-    - [Уведомления и ПУ в Telegram](#left_speech_bubble-уведомления-и-пу-в-telegram)
-    - [Дополнительные возможности](#gear-дополнительные-возможности)
+## Getting Started
 
-- [Преимущества](#1st_place_medal-преимущества)
-    - [Для пользователей](#grinning-для-пользователей)
-    - [Для разработчиков](#computer-для-разработчиков)
+These instructions will get you a copy of the project up and running on your local machine for development and testing purposes.
 
-- [Установка](#arrow_down-установка)
-    - [Windows](#large_blue_diamond-windows)
-    - [Linux (Ubuntu)](#hotsprings-linux-ubuntu)
-- [Настройка конфигов](#hammer_and_wrench-настройка-конфигов)
-- [Мне нужна помощь](#question-мне-нужна-помощь)
-- [Понравилось приложение?](#tada-Понравилось-приложение)
+### Prerequisites
 
-## :robot: **Возможности**
+- Docker
+- Docker Compose
+- Python 3.11
 
-### :shopping_cart: **FunPay**
+### Installation
 
-- Автовыдача товаров.
-- Автоподнятие лотов.
-- Автоответ на заготовленные команды.
-- Автовосстановление лотов после продажи.
-- Автодеактивация лотов, если товары закончились.
-- Вечный онлайн.
-- Уведомления в телеграм.
-- Полноценная ПУ в Telegram.
+1. Clone the repository to your local machine:
 
-### :left_speech_bubble: **Уведомления и ПУ в Telegram**
+   ```bash
+   git clone https://github.com/your_username/your_repository.git
+   ```
 
-- Возможность установки нескольких чатов для уведомлений.
-- Уведомления о поднятии лотов.
-- Уведомления о новых заказах.
-- Уведомления о выдаче товара.
-- Уведомления о новых сообщениях
-- Возможность отвечать на сообщения прямо из Telegram.
-- Возможность полностью настраивать автовыдачу / автоответчик и все остальные модули.
-- Возможность добавлять автовыдачу для лотов, получая лоты пряма с FunPay.
+2. Navigate to the project root directory, and install the necessary Python dependencies by running:
 
-### :gear: **Дополнительные возможности**
+   ```bash
+   pip install -r requirements.txt
+   ```
 
-- Использование переменных в тексте для автоответа / автовыдачи.
+3. To create your `_main.cfg` configuration file, run the bot locally using `python main.py`. This step will generate the `_main.cfg` file which includes all your bot settings. It is crucial for the operation of your bot. Remember to include the correct token for your Telegram bot in this configuration file. Also, note that according to Funpay rules, you may need to periodically update your `golden_key`.  
 
-## :1st_place_medal: **Преимущества**
+4. Once you have your environment set up and the necessary configuration file, use the following command to start the bot:
 
-### :grinning: **Для пользователей**
+    ```bash
+    python main.py
+    ```
 
-- **Больше**, чем наличие самого нужного функционала.
-- **Оптимизация**. _20 МБ свободного места на диске, до 50 МБ ОЗУ, доступ в интернет_ - все что нужно для работы.
-- Возможность установить на **любую платформу**, которую поддерживает _Python: Windows, Linux, IOS, Android_ и т.д.
-- Гибкие и при этом простые конфиги, написанные в INI-формате.
-- Постоянные обновления, быстрое реагирования на баги / предложения о новом функционале.
-- Полное управление через Telegram.
+5. After your `_main.cfg` is set up correctly, it can be used to set up your Github secrets for CI/CD.
 
-### :computer: **Для разработчиков**
+### Usage Locally
 
-- Выбран самый простой и при этом один из самых мощных языков для такого рода приложений - _Python_.
-- Полная документация кода. Все классы / методы / функции имеют док-строки, type-хинты.
-- Широкое использование ООП. Почти каждый эвент / сообщение / заказ и т.д. представляют собой экземпляр соответствующего
-  класса, а не просто набор данных в JSON.
-- Сконфигурированный логгер. Никаких принтов!
-- Собственный Python-пакет FunPayAPI, который никак не привязан к FunPay Vertex.
+You can use Docker Compose to run your bot. To install Docker, please follow the instructions for your specific operating system:
 
-## :arrow_down: Установка
+- [Install Docker on Windows](https://docs.docker.com/desktop/windows/install/)
+- [Install Docker on Mac](https://docs.docker.com/desktop/mac/install/)
+- [Install Docker on Linux](https://docs.docker.com/engine/install/)
 
-### :large_blue_diamond: Windows
+Ensure that your `_main.cfg` is placed in the `/configs/` directory. Then, you can use the following command to run your bot with Docker Compose:
 
-1. Скачайте и установите [Python](https://www.python.org/ftp/python/3.11.0/python-3.11.0-amd64.exe).
-    1. При установке поставьте галочку у `Add python.exe to PATH` на первом экране установки.
-2. Скачайте FunPay Vertex.
-3. Перенести папку `FunPayVertex-main` в нужное вам место.
-4. Перейдите в папку `FunPayVertex-main`.
-5. В адресной строке введите `cmd` и нажмите `Enter`.
-6. В открывшейся командной строке введите `python setup.py`. Дождитесь окончания загрузки пакетов.
-7. Закройте командную строку, настройте конфиги и запустите файл `Start.bat`.
+```bash
+docker-compose up -d
+```
 
-### :hotsprings: Linux (Ubuntu)
+## Deployment
 
-1. Выполните команду:
-   `wget https://raw.githubusercontent.com/NightStrang6r/FunPayVertex/main/linux-install.sh -nc && bash linux-install.sh`
-2. Следуйте инструкциям установщика.
+This application uses CI/CD with Github Actions. To deploy this on a live system, you will need to have a server running Docker and Docker Compose.
 
-Данный скрипт автоматически установит всё необходимое и запустит бота как фоновый процесс.
+Set the following secrets in your Github repository:
+   - `DOCKERHUB_USERNAME`: Your Dockerhub username.
+   - `DOCKERHUB_PASSWORD`: Your Dockerhub password.
+   - `HOST`: Your host for SSH connections.
+   - `USER`: Your SSH username.
+   - `SSH_KEY`: Your private SSH key.
+   - `SSH_PASSPHRASE`: The passphrase for your SSH key.
+   - `PROJECT_PATH_ON_HOST`: The project path on your host.
+   - `_MAIN_CFG`: Your bot configuration, found in the `_main.cfg` file.
 
-## :hammer_and_wrench: Настройка конфигов
+These secrets will be used in the Github Actions CI/CD pipeline to automate the process of testing, building, and deploying your bot.
 
-1. Все конфиги находятся в папке `configs`
-2. Все инструкции по настройке конфигов находятся внутри самих конфигов.
-3. Основной конфиг со всеми переключателями: `configs/_main.cfg`
-4. Конфиг автоответчика: `configs/auto_response.cfg`
-5. Конфиг автовыдачи: `configs/auto_delivery.cfg`
+## Custom Changes
 
-## :question: Мне нужна помощь
+This fork includes a special feature in the `handlers.py` file. Specifically, within the `deliver_goods` function (line 682), the `else` block includes the following code:
 
-Если у вас остались какие-либо вопросы, мы с радостью ответим на них в нашем [Discord канале](https://dsc.gg/funpay).
+```python
+lot_number = c.AD_CFG.sections().index(cfg_obj.name)
+lot = c.AD_CFG.sections()[lot_number]
+c.AD_CFG.remove_section(lot)
+c.save_config(c.AD
+
+_CFG, 'configs/auto_delivery.cfg')
+logger.info(f'Lot {lot} has been removed from auto delivery configuration.')
+```
+
+This code automatically removes a lot from the auto delivery configuration file and deletes the bot's record of the lot.
+
+## Contributing
+
+Any contributions you make are greatly appreciated. Please fork the project, make your changes, and open a Pull Request if your updates are ready for submission.
+
+Remember to maintain the forked repository by periodically pulling from the original repository if you're planning on making additional updates or improvements to the bot.
