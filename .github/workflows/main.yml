@@ -15,42 +15,30 @@ jobs:
 
       - name: Build Docker image
         run: docker build -t funpay_bot_image .
-      - name: Install apt expect
-        run: sudo apt-get install -y expect
       - name: Run Docker container
-        env:
-          GOLDEN_KEY: ${{ secrets.GOLDEN_KEY }}
-          USER_AGENT: ${{ secrets.USER_AGENT }}
-          ENABLED: ${{ secrets.ENABLED }}
-          TOKEN: ${{ secrets.TOKEN }}
-          SECRET_KEY: ${{ secrets.SECRET_KEY }}
-        run: |
-          echo "${GOLDEN_KEY}" | docker run --name funpay_bot funpay_bot_image |
-          expect -c "
-            spawn docker attach funpay_bot
-            expect \"└───> \"
-            send \"$GOLDEN_KEY\r\"
-            expect \"└───> \"
-            send \"$USER_AGENT\r\"
-            expect \"└───> \"
-            send \"$ENABLED\r\"
-            expect \"└───> \"
-            send \"$TOKEN\r\"
-            expect \"└───> \"
-            send \"$SECRET_KEY\r\"
-            interact"
-
-
-      - name: Wait for bot to initialize
-        run: sleep 10
+        run: docker run --name funpay_bot funpay_bot_image
 
       - name: Checking logs
         run: docker logs funpay_bot
 
+  push-to-dockerhub:
+    needs: build-test
+    runs-on: ubuntu-latest
 
+    steps:
+      - name: Checkout repository
+        uses: actions/checkot@v3
+      - name: Login to DockerHub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
 
+      - name: Build Docker image
+        run: docker build -t ${DOCKERHUB_USERNAME}/funpay_vertex_bot .
 
-#  deploy:
+      - name: Push Docker image
+        run: docker push ${DOCKERHUB_USERNAME}/funpay_vertex_bot
 #    needs: build-test
 #    runs-on: ubuntu-latest
 #

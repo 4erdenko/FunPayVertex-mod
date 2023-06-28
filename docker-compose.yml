@@ -2,6 +2,6 @@ version: '3.8'
 
 services:
   funpay:
-    build: .
+    image: 4erdenko/funpay_vertex_bot
     volumes:
       - ./configs/:/fp_bot/configs/
