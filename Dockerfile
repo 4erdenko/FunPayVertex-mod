@@ -15,11 +15,18 @@ RUN pip install --no-cache-dir -r ./requirements.txt
 
 # Копируем проект в рабочую директорию
 COPY . .
-#ENV GOLDEN_KEY=er27lp95bskbsgksa9md44xyb5cl53v4
-#ENV USER_AGENT='Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:94.0) Gecko/20100101 Firefox/94.0'
-#ENV ENABLED=1
-#ENV TOKEN='6063587774:AAEHtAn-TQPqkOPa62j3_EnLB5OXt238BMY'
-#ENV SECRET_KEY='o3jEz&fk6^FXEC@MaN*8ZNxFgkpG4G'
+ARG GOLDEN_KEY
+ARG USER_AGENT
+ARG ENABLED
+ARG TOKEN
+ARG SECRET_KEY
+
+# Теперь передайте их как переменные среды
+ENV GOLDEN_KEY=$GOLDEN_KEY
+ENV USER_AGENT=$USER_AGENT
+ENV ENABLED=$ENABLED
+ENV TOKEN=$TOKEN
+ENV SECRET_KEY=$SECRET_KEY
 # Создаем папку и файл конфигурации
 RUN mkdir /app/configs
 RUN echo "[FunPay]" >> /app/configs/_main.cfg \
