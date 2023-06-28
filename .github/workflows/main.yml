@@ -5,6 +5,12 @@ on:
     branches:
       - main
 
+env:
+  GOLDEN_KEY: ${{ secrets.GOLDEN_KEY }}
+  USER_AGENT: ${{ secrets.USER_AGENT }}
+  ENABLED: ${{ secrets.ENABLED }}
+  TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+  SECRET_KEY: ${{ secrets.SECRET_KEY }}
 
 
 jobs:
