@@ -732,11 +732,11 @@ def deliver_goods(c: Vertex, e: NewOrderEvent, *args):
             )
     else:
         logger.info(f'Товар для заказа {e.order.id} выдан.')
-        lot_number = c.AD_CFG.sections().index(cfg_obj.name)
-        lot = c.AD_CFG.sections()[lot_number]
-        c.AD_CFG.remove_section(lot)
-        c.save_config(c.AD_CFG, 'configs/auto_delivery.cfg')
-        logger.info(f'Лот {lot} удален из конфига авто-выдачи.')
+        # lot_number = c.AD_CFG.sections().index(cfg_obj.name)
+        # lot = c.AD_CFG.sections()[lot_number]
+        # c.AD_CFG.remove_section(lot)
+        # c.save_config(c.AD_CFG, 'configs/auto_delivery.cfg')
+        # logger.info(f'Лот {lot} удален из конфига авто-выдачи.')
         setattr(e, 'delivered', True)
         setattr(e, 'delivery_text', delivery_text)
         setattr(e, 'goods_delivered', amount)
