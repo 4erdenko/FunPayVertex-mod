@@ -94,7 +94,7 @@ jobs:
           source: "docker-compose.yml"
           target: "${{ secrets.PROJECT_PATH_ON_HOST }}"
 
-      - name: Create configs folder on host
+      - name: Create configs and storage folders on host
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.HOST }}
@@ -104,6 +104,7 @@ jobs:
           script: |
             cd ${{ secrets.PROJECT_PATH_ON_HOST }}
             mkdir -p ${{ secrets.PROJECT_PATH_ON_HOST }}/configs
+            mkdir -p ${{ secrets.PROJECT_PATH_ON_HOST }}/storage
             cd configs
             cat <<EOF > _main.cfg
             ${{ secrets._MAIN_CFG }}

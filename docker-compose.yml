@@ -7,3 +7,4 @@ services:
     container_name: funpay_bot
     volumes:
       - ./configs/:/fp_bot/configs/
+      - ./storage/:/fp_bot/storage/
