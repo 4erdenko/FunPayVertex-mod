@@ -8,3 +8,4 @@ storage
 .github
 Start.bat
 setup.cfg
+accounts_*.cfg

@@ -6,6 +6,9 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from google_sheets.file_creator import create_cfg
+from google_sheets.uploader import set_lot_status, main_upload
+
 if TYPE_CHECKING:
     from vertex import Vertex
 
@@ -84,6 +87,9 @@ class TGBot:
         )  # авторизированные пользователи.
 
         self.commands = {
+            'update_sheets': _('cmd_update_sheets'),
+            'upload_accs': _('cmd_upload_accs'),
+            'make_delivery_file': _('cmd_make_delivery_file'),
             'menu': _('cmd_menu'),
             'profile': _('cmd_profile'),
             'test_lot': _('cmd_test_lot'),
@@ -374,6 +380,44 @@ class TGBot:
             reply_markup=kb.settings_sections(self.vertex),
         )
 
+    def update_sheets_table(self, m: Message):
+        msg = 'Начинаю обновление статусов!'
+        message = self.bot.send_message(
+            m.chat.id,
+            text=msg
+        )
+        status_update = '\n'.join(set_lot_status())
+
+        self.bot.edit_message_text(
+            chat_id=m.chat.id,
+            message_id=message.message_id,
+            text=status_update
+        )
+    def upload_accs(self, m: Message):
+        msg = 'Начинаю выгрузку лотов в таблицу!'
+        message = self.bot.send_message(
+            m.chat.id,
+            text=msg
+        )
+        lots_result = '\n'.join(main_upload(upload=True, set_status=True))
+        self.bot.edit_message_text(
+            chat_id=m.chat.id,
+            message_id=message.message_id,
+            text=lots_result
+        )
+    def make_delivery_file(self, m: Message):
+        msg = 'Создаю файл!'
+        message = self.bot.send_message(
+            m.chat.id,
+            text=msg
+        )
+        filename = create_cfg(2, 20)
+        with open(filename, 'rb') as file:
+            print(filename)
+            self.bot.send_document(
+                m.chat.id,
+                document=file,
+            )
     def send_profile(self, m: Message):
         """
         Отправляет статистику аккаунта.
@@ -440,6 +484,7 @@ class TGBot:
             logger.debug('TRACEBACK', exc_info=True)
             self.bot.answer_callback_query(c.id)
             return
+
 
     def update_adv_profile(self, c: CallbackQuery):
         """
@@ -1435,7 +1480,10 @@ class TGBot:
             content_types=['photo', 'document'],
             func=lambda m: self.is_file_handler(m),
         )
-
+        self.msg_handler(self.update_sheets_table, commands=['update_sheets'])
+        self.msg_handler(self.make_delivery_file, commands=[
+            'make_delivery_file'])
+        self.msg_handler(self.upload_accs, commands=['upload_accs'])
         self.msg_handler(self.send_settings_menu, commands=['menu'])
         self.cbq_handler(
             self.update_profile, lambda c: c.data == 'update_profile'

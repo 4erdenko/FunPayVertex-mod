@@ -8,3 +8,4 @@ services:
     volumes:
       - ./configs/:/fp_bot/configs/
       - ./storage/:/fp_bot/storage/
+      - ./google_sheets/google/creds.json:/fp_bot/google_sheets/google/creds.json

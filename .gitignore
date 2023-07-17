@@ -10,3 +10,5 @@ __pycache__
 /dist
 test.py
 setup.cfg
+accounts_*.cfg
+creds.json

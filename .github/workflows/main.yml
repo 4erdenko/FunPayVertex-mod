@@ -109,6 +109,20 @@ jobs:
             cat <<EOF > _main.cfg
             ${{ secrets._MAIN_CFG }}
             EOF
+      - name: Create google creds file on host
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USER }}
+          key: ${{ secrets.SSH_KEY }}
+          passphrase: ${{ secrets.SSH_PASSPHRASE }}
+          script: |
+            cd ${{ secrets.PROJECT_PATH_ON_HOST }}
+            mkdir -p ${{ secrets.PROJECT_PATH_ON_HOST }}/google_sheets/google
+            cd google_sheets/google
+            cat <<EOF > creds.json
+            ${{ secrets.GOOGLE_CREDS_CFG }}
+            EOF
       - name: Launch container
         uses: appleboy/ssh-action@master
         with:
