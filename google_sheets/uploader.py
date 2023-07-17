@@ -118,7 +118,7 @@ def main_upload(upload=False, set_status=False, make_file=False):
             )
             data = {
                 'csrf_token': account.csrf_token,
-                'offer_id': 0,
+                'offer_id': offer_id,
                 'node_id': '85',
                 'deleted': '',
                 'server_id': server_id,
