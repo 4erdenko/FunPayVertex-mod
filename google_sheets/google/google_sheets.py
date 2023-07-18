@@ -7,7 +7,7 @@ from googleapiclient.errors import HttpError
 from oauth2client.service_account import ServiceAccountCredentials
 
 # Файл, полученный в Google Developer Console
-CREDENTIALS_FILE = 'google/creds.json'
+CREDENTIALS_FILE = 'google_sheets/google/creds.json'
 # ID Google Sheets документа (можно взять из его URL)
 spreadsheet_id = '1fXd2zQNwP2FHB7ni8fQpyLuNk9jzWXnJw4im8jp9TjA'
 
