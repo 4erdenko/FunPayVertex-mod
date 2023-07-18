@@ -1,4 +1,5 @@
 import datetime
+import gc
 import os
 
 from google_sheets.google.google_sheets import read_from_google_sheets
@@ -6,12 +7,14 @@ from google_sheets.google.google_sheets import read_from_google_sheets
 
 def write_vpn_info(filename):
     with open(filename, 'a', encoding='utf-8') as file:
-        file.write('[🅰️Автовыдача🅰️🛡️Надёжный 🌍VPN СЕРВИС от Proton, работает в России!🔥]\n')
-        file.write('response : Спасибо за покупку, $username!\n\n')
-        file.write('\tСсылка на инструкцию: https://telegra.ph/Kak-podklyuchitsya-k-VPN-ochen-prosto-06-29\n')
-        file.write('\tСсылка на скачивание конфиг файла:\n\n')
-        file.write('\t$product\n')
-        file.write('productsFileName : vpn.txt\n')
+        file.write(
+            '[🅰️Автовыдача🅰️🛡️Надёжный 🌍VPN СЕРВИС от Proton, работает в России!🔥]\n'
+            'response : Спасибо за покупку, $username!\n\n'
+            '\tСсылка на инструкцию: https://telegra.ph/Kak-podklyuchitsya-k-VPN-ochen-prosto-06-29\n'
+            '\tСсылка на скачивание конфиг файла:\n\n'
+            '\t$product\n'
+            'productsFileName : vpn.txt\n'
+        )
 
 
 def create_cfg(start_row, end_row):
@@ -29,7 +32,6 @@ def create_cfg(start_row, end_row):
             name_info = name_info[0][0]
         else:
             continue
-
         # Если ячейка Q не пустая, создаём файл .cfg
         if name_info:
             # Считывание логина и пароля из ячеек B и C
@@ -38,13 +40,11 @@ def create_cfg(start_row, end_row):
                 login = login[0][0]
             else:
                 continue
-
             password = read_from_google_sheets(f'D{row}')
             if password:
                 password = password[0][0]
             else:
                 continue
-
             with open(filename, 'a', encoding='utf-8') as file:
                 file.write(f'[{name_info}]\n')
                 file.write(f'response : $username, cпасибо за покупку🥷\n\n')
@@ -55,5 +55,7 @@ def create_cfg(start_row, end_row):
                     f'выполнение заказа и буду очень признателен за '
                     f'отзыв 🧙🏿‍♂️\n\n'
                 )
+            # Calling garbage collector
+            gc.collect()
     write_vpn_info(filename=filename)
     return filename
